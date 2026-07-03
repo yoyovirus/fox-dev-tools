@@ -1,3 +1,4 @@
+"use client";
 /*
   Website: FoX Dev Tools - Tools for Developers
   Author: Rahul Khedekar
@@ -6,24 +7,19 @@
   This code is proprietary and may not be copied, modified,
   or distributed without permission.
 */
-"use client";
 
-import { useState, useCallback, useEffect } from "react";
-import {
-    Box, Typography, Button, IconButton, Tooltip, Alert, Snackbar,
-    alpha, useTheme, Divider, Stack, TextField
-} from "@mui/material";
-import {
-    ContentCopy, Download as DownloadIcon, DeleteOutline,
-    CloudUpload as UploadIcon, InsertDriveFile as FileIcon
-} from "@mui/icons-material";
-import { Editor } from "@/components/Editor";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Copy, Trash2, FileText, Upload, Download } from "lucide-react";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 export default function ImageToBase64Page() {
-    const theme = useTheme();
-
     const [file, setFile] = useState<File | null>(null);
     const [base64, setBase64] = useState<string>("");
     const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -31,8 +27,6 @@ export default function ImageToBase64Page() {
     const [filesize, setFilesize] = useState<number>(0);
     const [mimeType, setMimeType] = useState<string>("");
     const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -53,8 +47,7 @@ export default function ImageToBase64Page() {
             setBase64(result);
             if (selectedFile.type.startsWith("image/")) {
                 setPreviewUrl(result);
-                
-                // Calculate dimensions
+
                 const img = new Image();
                 img.onload = () => {
                     setDimensions({ width: img.naturalWidth, height: img.naturalHeight });
@@ -70,8 +63,6 @@ export default function ImageToBase64Page() {
 
     const handleCopy = async (text: string) => {
         await navigator.clipboard.writeText(text);
-        setSnackbarMessage("Copied to clipboard!");
-        setSnackbarOpen(true);
     };
 
     const handleClear = () => {
@@ -94,13 +85,13 @@ export default function ImageToBase64Page() {
             setFilename('foxdevtools_logo.png');
             setFilesize(file.size);
             setMimeType('image/png');
-            
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 const result = event.target?.result as string;
                 setBase64(result);
                 setPreviewUrl(result);
-                
+
                 const img = new Image();
                 img.onload = () => {
                     setDimensions({ width: img.naturalWidth, height: img.naturalHeight });
@@ -109,8 +100,7 @@ export default function ImageToBase64Page() {
             };
             reader.readAsDataURL(file);
         } catch (e) {
-            setSnackbarMessage("Failed to load sample image");
-            setSnackbarOpen(true);
+            console.error("Failed to load sample image");
         }
     };
 
@@ -128,275 +118,182 @@ export default function ImageToBase64Page() {
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="Image to Base64"
                 toolColor={getToolColor("Image to Base64")}
                 description="Convert image files into Base64 strings for CSS, HTML, or data transfer."
             />
 
-            {/* Content Area */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-[500px]">
                 {/* Upload Section */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        Image Upload
-                    </Typography>
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <Box
-                            sx={{
-                                p: 4,
-                                border: `2px dashed ${theme.palette.divider}`,
-                                borderRadius: 4,
-                                bgcolor: alpha(theme.palette.background.paper, 0.4),
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 2,
-                                cursor: "pointer",
-                                transition: "all 0.2s",
-                                "&:hover": {
-                                    borderColor: theme.palette.primary.main,
-                                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                                },
-                            }}
-                            onClick={() => document.getElementById("file-input")?.click()}
-                        >
-                            <Box
-                                component="input"
-                                type="file"
-                                id="file-input"
-                                sx={{ display: "none" }}
-                                accept="image/*"
-                                onChange={handleFileChange}
-                            />
-                            <Box sx={{
-                                width: 64, height: 64, borderRadius: "50%",
-                                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                color: "primary.main"
-                            }}>
-                                <UploadIcon sx={{ fontSize: 32 }} />
-                            </Box>
-                            <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="h6" fontWeight={700}>Click or Drag Image Here</Typography>
-                                <Typography variant="body2" color="text.secondary">Supports JPG, PNG, WEBP, GIF (Max 5MB recommended)</Typography>
-                            </Box>
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    processSample();
-                                }}
-                                sx={{ borderRadius: 2, px: 3 }}
-                            >
-                                Load Sample Image
-                            </Button>
-                        </Box>
+                <div className="flex-[40] min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm h-full bg-card">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                            Image Input
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={processSample} />
+                            {file && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={handleClear} />
+                                </>
+                            )}
+                        </div>
+                    </div>
 
+                    <div className="flex-1 p-6 flex flex-col gap-6 overflow-auto bg-muted/10">
+                        {/* Dropzone */}
+                        <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl bg-background hover:bg-muted/50 transition-colors cursor-pointer p-6 min-h-[250px] group">
+                            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+
+                            {previewUrl ? (
+                                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[200px] object-contain rounded shadow-sm border border-border/50 group-hover:opacity-50 transition-opacity" />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center gap-4 text-center">
+                                    <div className="bg-primary/10 p-4 rounded-full">
+                                        <Upload className="size-8 text-primary" />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-lg">Click or Drag Image Here</div>
+                                        <div className="text-sm text-muted-foreground mt-1">Supports JPG, PNG, WEBP, GIF</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {previewUrl && (
+                                <div className="absolute font-semibold bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                    <Upload className="size-4" /> Change Image
+                                </div>
+                            )}
+                        </label>
+
+                        {/* File Details */}
                         {file && (
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Box sx={{
-                                    p: 2, borderRadius: 3, bgcolor: "background.paper",
-                                    border: `1px solid ${theme.palette.divider}`,
-                                    display: "flex", alignItems: "center", gap: 2
-                                }}>
-                                    <Box sx={{
-                                        width: 48, height: 48, borderRadius: 1.5,
-                                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        overflow: "hidden"
-                                    }}>
-                                    {previewUrl ? (
-                                        <Box component="img" src={previewUrl} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                    ) : (
-                                        <FileIcon sx={{ color: "primary.main" }} />
-                                    )}
-                                </Box>
-                                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                                    <Typography variant="body2" fontWeight={700} noWrap>{filename}</Typography>
-                                    <Typography variant="caption" color="text.secondary">{formatSize(filesize)} • {mimeType}</Typography>
-                                </Box>
-                                <IconButton onClick={handleClear} size="small" color="error">
-                                    <DeleteOutline />
-                                </IconButton>
-                            </Box>
+                            <div className="flex flex-col gap-2">
+                                <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">File Info & Metadata</div>
+                                <div className="rounded-lg border bg-background p-4 shadow-sm">
+                                    <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                                        <div className="bg-primary/10 p-2 rounded-lg">
+                                            <FileText className="size-6 text-primary" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-medium truncate">{filename}</div>
+                                            <div className="text-xs text-muted-foreground">{mimeType} • {formatSize(filesize)}</div>
+                                        </div>
+                                    </div>
 
-                            {/* Enhanced Metadata */}
-                            <Box sx={{ mt: 1 }}>
-                                <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                    sx={{ textTransform: "uppercase", letterSpacing: "0.1em", mb: 1, display: "block" }}>
-                                    Metadata
-                                </Typography>
-                                <Box sx={{ borderRadius: 3, overflow: "hidden", border: `1px solid ${theme.palette.divider}`, bgcolor: "background.paper" }}>
-                                    <Box sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
-                                        <Stack spacing={1.5}>
-                                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700}>Dimen:</Typography>
-                                                <Typography variant="caption" fontWeight={800}>
-                                                    {dimensions ? `${dimensions.width} × ${dimensions.height}px` : "Calculating..."}
-                                                </Typography>
-                                            </Box>
-                                            <Divider />
-                                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700}>Type:</Typography>
-                                                <Typography variant="caption" fontWeight={800}>{mimeType}</Typography>
-                                            </Box>
-                                            <Divider />
-                                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700}>Base64 Size:</Typography>
-                                                <Typography variant="caption" fontWeight={800}>{formatSize(base64.length)}</Typography>
-                                            </Box>
-                                            <Divider />
-                                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700}>Original Size:</Typography>
-                                                <Typography variant="caption" fontWeight={800}>{formatSize(filesize)}</Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-                                </Box>
-                            </Box>
-                            </Box>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="text-[10px] uppercase text-muted-foreground">Dimensions</div>
+                                            <div className="font-medium text-sm">{dimensions ? `${dimensions.width} × ${dimensions.height}px` : "Calculating..."}</div>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="text-[10px] uppercase text-muted-foreground">Base64 Size</div>
+                                            <div className="font-medium text-sm">{formatSize(base64.length)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         )}
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
                 {/* Output Section */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        Base64 Output
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                        bgcolor: "background.paper",
-                    }}>
+                <div className="flex-[60] min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm h-full bg-card">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                            Base64 Output
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {base64 && (
+                                <>
+
+                                    <CopyButton textToCopy={base64} tooltipText="Copy Base64" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Base64" onClickAction={() => {
+                                                const blob = new Blob([base64], { type: "text/plain" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "base64.txt"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={handleClear} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex-1 p-6 overflow-auto bg-muted/10">
                         {!base64 ? (
-                            <Box sx={{
-                                width: "100%", height: "100%",
-                                display: "flex", alignItems: "center", justifyContent: "center"
-                            }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>Upload an image to see the Base64 output</Typography>
-                            </Box>
+                            <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                                Upload an image to see the Base64 output
+                            </div>
                         ) : (
-                            <Box sx={{ p: 2, height: "100%", overflow: "auto" }}>
-                                {/* Data URI Output */}
-                                <Box sx={{ mb: 2 }}>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                                        <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                            sx={{ textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                                            Full Data URI
-                                        </Typography>
-                                        <Button size="small" startIcon={<ContentCopy sx={{ fontSize: 14 }} />} onClick={() => handleCopy(base64)} sx={{ fontSize: "0.7rem", py: 0.2 }}>
-                                            Copy
-                                        </Button>
-                                    </Box>
-                                    <TextField
-                                        fullWidth
-                                        multiline
-                                        rows={4}
-                                        value={base64}
-                                        InputProps={{ readOnly: true }}
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 2.5,
-                                                fontSize: "0.75rem",
-                                                bgcolor: alpha(theme.palette.text.primary, 0.02)
-                                            }
-                                        }}
-                                    />
-                                </Box>
+                            <div className="flex flex-col gap-6 max-w-full">
+                                {/* Full Data URI */}
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Full Data URI</div>
+
+                                        <CopyButton textToCopy={base64} tooltipText="Copy" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1.5" />
+                                    </div>
+                                    <div className="relative">
+                                        <Input
+                                            className="font-mono text-xs bg-background pr-12 overflow-hidden text-ellipsis h-10"
+                                            value={base64}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
 
                                 {/* Raw Base64 */}
-                                <Box sx={{ mb: 2 }}>
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                                        <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                            sx={{ textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                                            Raw Base64 (Body Only)
-                                        </Typography>
-                                        <Button size="small" startIcon={<ContentCopy sx={{ fontSize: 14 }} />} onClick={() => handleCopy(getRawBase64())} sx={{ fontSize: "0.7rem", py: 0.2 }}>
-                                            Copy
-                                        </Button>
-                                    </Box>
-                                    <TextField
-                                        fullWidth
-                                        multiline
-                                        rows={4}
-                                        value={getRawBase64()}
-                                        InputProps={{ readOnly: true }}
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 2.5,
-                                                fontSize: "0.75rem",
-                                                bgcolor: alpha(theme.palette.text.primary, 0.02)
-                                            }
-                                        }}
-                                    />
-                                </Box>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Raw Base64 (Body Only)</div>
+
+                                        <CopyButton textToCopy={getRawBase64()} tooltipText="Copy" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1.5" />
+                                    </div>
+                                    <div className="relative">
+                                        <Input
+                                            className="font-mono text-xs bg-background pr-12 overflow-hidden text-ellipsis h-10"
+                                            value={getRawBase64()}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
 
                                 {/* Snippets */}
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                                    <Box>
-                                        <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                            sx={{ textTransform: "uppercase", letterSpacing: "0.1em", display: "block", mb: 1 }}>
-                                            HTML Snippet
-                                        </Typography>
-                                        <Box sx={{
-                                            p: 1.5, borderRadius: 2.5, bgcolor: alpha(theme.palette.text.primary, 0.04),
-                                            border: `1px solid ${theme.palette.divider}`,
-                                            display: "flex", alignItems: "center", justifyContent: "space-between"
-                                        }}>
-                                            <Typography sx={{ fontSize: "0.75rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flexGrow: 1 }}>
-                                                &lt;img src="{base64.substring(0, 30)}..." /&gt;
-                                            </Typography>
-                                            <IconButton size="small" onClick={() => handleCopy(`<img src="${base64}" alt="${filename}" />`)}>
-                                                <ContentCopy sx={{ fontSize: 16 }} />
-                                            </IconButton>
-                                        </Box>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                            sx={{ textTransform: "uppercase", letterSpacing: "0.1em", display: "block", mb: 1 }}>
-                                            CSS Snippet
-                                        </Typography>
-                                        <Box sx={{
-                                            p: 1.5, borderRadius: 2.5, bgcolor: alpha(theme.palette.text.primary, 0.04),
-                                            border: `1px solid ${theme.palette.divider}`,
-                                            display: "flex", alignItems: "center", justifyContent: "space-between"
-                                        }}>
-                                            <Typography sx={{ fontSize: "0.75rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flexGrow: 1 }}>
-                                                background-image: url("{base64.substring(0, 30)}...");
-                                            </Typography>
-                                            <IconButton size="small" onClick={() => handleCopy(`background-image: url("${base64}");`)}>
-                                                <ContentCopy sx={{ fontSize: 16 }} />
-                                            </IconButton>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        )}
-                    </Box>
-                </Box>
-            </Box>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
+                                    {/* HTML Snippet */}
+                                    <div className="flex flex-col gap-2 bg-background border rounded-lg p-4 shadow-sm">
+                                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">HTML Snippet</div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="flex-1 bg-muted/50 p-2 rounded text-xs font-mono text-muted-foreground truncate">
+                                                &lt;img src="data:..." /&gt;
+                                            </code>
 
-            <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage} anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
-        </Box>
+                                            <CopyButton textToCopy={`<img src="${base64}" alt="${filename}" />`} tooltipText="Copy" />
+                                        </div>
+                                    </div>
+
+                                    {/* CSS Snippet */}
+                                    <div className="flex flex-col gap-2 bg-background border rounded-lg p-4 shadow-sm">
+                                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">CSS Snippet</div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="flex-1 bg-muted/50 p-2 rounded text-xs font-mono text-muted-foreground truncate">
+                                                background-image: url("...");
+                                            </code>
+
+                                            <CopyButton textToCopy={`background-image: url("${base64}");`} tooltipText="Copy" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
-

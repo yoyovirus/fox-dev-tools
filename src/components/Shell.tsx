@@ -1,198 +1,61 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { AppThemeProvider, useThemeContext } from "@/components/AppThemeProvider";
-import { Sidebar } from "@/components/Sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import {
-    AppBar,
-    Toolbar,
-    IconButton,
-    Box,
-    useTheme,
-    useMediaQuery,
-    Tooltip,
-    Typography,
-    alpha,
-    Collapse,
-    Fade,
-    Zoom,
-} from "@mui/material";
-import {
-    ChevronLeft as ChevronLeftIcon,
-    ChevronRight as ChevronRightIcon,
-    LightMode as LightModeIcon,
-    DarkMode as DarkModeIcon,
-    Build as BuildIcon,
-} from "@mui/icons-material";
-import Image from 'next/image';
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
+import { usePathname } from "next/navigation";
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+import { CommandMenu } from "@/components/CommandMenu";
+
+function Header() {
     const { mode, toggleColorMode } = useThemeContext();
-    const theme = useTheme();
-
-    // md: 900px, sm: 600px
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    // One Tile Mode threshold (~744px based on 2 * 360px + gaps)
-    const isOneTileMode = useMediaQuery("(max-width:768px)");
-
-    // Automatically close sidebar if in one-tile mode to maximize content
-    useEffect(() => {
-        if (isOneTileMode) {
-            setSidebarOpen(false);
-        } else if (!isMobile) {
-            setSidebarOpen(true);
-        }
-    }, [isOneTileMode, isMobile]);
-
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
+    const pathname = usePathname();
+    
+    // Extract tool name from pathname if applicable
+    const isTool = pathname.includes("-tools/");
+    const toolName = isTool ? pathname.split("/").pop()?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : "Dashboard";
 
     return (
-        <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "background.default" }}>
-            <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+            <div className="flex items-center gap-2">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 h-4" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>{toolName}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </div>
+            
+            <div className="flex items-center gap-4">
+                <CommandMenu />
+                <Button variant="ghost" size="icon" onClick={toggleColorMode}>
+                    {mode === "dark" ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
+                </Button>
+            </div>
+        </header>
+    );
+}
 
-            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, height: "100%" }}>
-                {/* Top AppBar - Collapses in One-Tile Mode */}
-                <Collapse in={!isOneTileMode} sx={{ flex: "0 0 auto" }}>
-                    <AppBar
-                        position="static"
-                        color="transparent"
-                        elevation={0}
-                        sx={{
-                            bgcolor: "background.paper",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                            backdropFilter: "blur(8px)",
-                        }}
-                    >
-                        <Toolbar sx={{ justifyContent: "space-between", minHeight: "56px !important", px: 2, py: 0 }}>
-                            {/* Left: toggle sidebar */}
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Tooltip title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}>
-                                    <IconButton
-                                        onClick={toggleSidebar}
-                                        size="small"
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            borderRadius: 2,
-                                            bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                            color: "primary.main",
-                                            "&:hover": {
-                                                bgcolor: alpha(theme.palette.primary.main, 0.15),
-                                            },
-                                        }}
-                                    >
-                                        {sidebarOpen ? <ChevronLeftIcon sx={{ fontSize: 18 }} /> : <ChevronRightIcon sx={{ fontSize: 18 }} />}
-                                    </IconButton>
-                                </Tooltip>
-
-                                {isMobile && (
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: 1 }}>
-                                        <Image
-                                            src="/foxdevtools_logo.png"
-                                            alt="FoX Dev Tools"
-                                            width={28}
-                                            height={28}
-                                            priority
-                                            style={{ borderRadius: '6px' }}
-                                        />
-                                        <Typography variant="subtitle2" fontWeight={800} color="text.primary" sx={{ letterSpacing: "-0.01em" }}>FoX Dev Tools</Typography>
-                                    </Box>
-                                )}
-                            </Box>
-
-                            {/* Right: theme toggle */}
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                <Tooltip title={`Switch to ${mode === "dark" ? "light" : "dark"} mode`}>
-                                    <IconButton
-                                        onClick={toggleColorMode}
-                                        size="small"
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            borderRadius: 2,
-                                            color: "text.secondary",
-                                            "&:hover": {
-                                                bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                                color: "primary.main",
-                                            },
-                                        }}
-                                    >
-                                        {mode === "dark"
-                                            ? <LightModeIcon sx={{ fontSize: 18 }} />
-                                            : <DarkModeIcon sx={{ fontSize: 18 }} />}
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                        </Toolbar>
-                    </AppBar>
-                </Collapse>
-
-                {/* Main content */}
-                <Box
-                    component="main"
-                    sx={{
-                        flexGrow: 1,
-                        overflow: "auto",
-                        minHeight: 0,
-                        p: { xs: 2, sm: 3 },
-                        position: "relative",
-                    }}
-                >
-                    {/* Floating Toggle for Sidebar in navbar-collapsed mode (One-Tile Mode) */}
-                    <Collapse in={isOneTileMode}>
-                        <Box
-                            sx={{
-                                position: "fixed",
-                                bottom: 24,
-                                right: 24,
-                                zIndex: 1000,
-                                display: "flex",
-                                gap: 1.5,
-                            }}
-                        >
-                            <Fade in={isOneTileMode} timeout={300}>
-                                <IconButton
-                                    onClick={toggleColorMode}
-                                    sx={{
-                                        width: 48,
-                                        height: 48,
-                                        bgcolor: "background.paper",
-                                        boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-                                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                                        color: "text.primary",
-                                        "&:hover": { bgcolor: alpha(theme.palette.background.paper, 0.8) }
-                                    }}
-                                >
-                                    {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
-                                </IconButton>
-                            </Fade>
-                            <Zoom in={isOneTileMode} timeout={300}>
-                                <IconButton
-                                    onClick={toggleSidebar}
-                                    sx={{
-                                        width: 48,
-                                        height: 48,
-                                        bgcolor: "primary.main",
-                                        boxShadow: "0 8px 32px rgba(124, 58, 237, 0.35)",
-                                        color: "#fff",
-                                        "&:hover": { bgcolor: "primary.dark" }
-                                    }}
-                                >
-                                    {sidebarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                                </IconButton>
-                            </Zoom>
-                        </Box>
-                    </Collapse>
-
+function LayoutContent({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <Header />
+                <main className="flex-1 overflow-auto p-4 md:p-6 bg-background">
                     {children}
-                </Box>
-            </Box>
-        </Box>
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
 

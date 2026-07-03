@@ -1,8 +1,8 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
-import { ErrorOutline as ErrorOutlineIcon } from "@mui/icons-material";
+import { Button } from "@/components/ui/button";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 interface Props {
     children: ReactNode;
@@ -42,53 +42,22 @@ export class ErrorBoundary extends Component<Props, State> {
             }
 
             return (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        minHeight: "400px",
-                        p: 4,
-                        textAlign: "center",
-                    }}
-                >
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 4,
-                            maxWidth: 500,
-                            border: "1px solid",
-                            borderColor: "error.light",
-                            bgcolor: "error.background",
-                        }}
-                    >
-                        <ErrorOutlineIcon
-                            sx={{
-                                fontSize: 64,
-                                color: "error.main",
-                                mb: 2,
-                            }}
-                        />
-                        <Typography variant="h5" fontWeight={700} gutterBottom>
+                <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+                    <div className="p-8 max-w-[500px] border border-destructive/30 rounded-xl bg-destructive/5">
+                        <ExclamationTriangleIcon className="w-16 h-16 text-destructive mb-4 mx-auto" />
+                        <h3 className="text-xl font-bold text-foreground mb-2">
                             Something went wrong
-                        </Typography>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ mb: 3 }}
-                        >
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-6">
                             {this.state.error?.message || "An unexpected error occurred"}
-                        </Typography>
+                        </p>
                         <Button
-                            variant="contained"
                             onClick={() => window.location.reload()}
-                            sx={{ borderRadius: 2 }}
                         >
                             Reload Page
                         </Button>
-                    </Paper>
-                </Box>
+                    </div>
+                </div>
             );
         }
 

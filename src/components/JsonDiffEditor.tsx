@@ -1,9 +1,9 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect } from "react";
 import { useThemeContext } from "@/components/AppThemeProvider";
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery } from "@mui/material";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 interface JsonDiffEditorProps {
     original: string;
@@ -19,47 +19,35 @@ const DiffEditor = dynamic(
     () => import('@monaco-editor/react').then(m => m.DiffEditor),
     {
         loading: () => (
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                gap: 2,
-            }}>
-                <CircularProgress size={24} />
-                <Typography variant="body2" color="text.secondary">Loading diff editor...</Typography>
-            </Box>
+            <div className="flex items-center justify-center h-full gap-2">
+                <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-foreground rounded-full animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading diff editor...</span>
+            </div>
         ),
         ssr: false,
     }
 );
 
-// Memoized to prevent unnecessary re-renders
-export const JsonDiffEditor = memo(function JsonDiffEditor({ original, modified, originalPlaceholder, modifiedPlaceholder, onChangeOriginal, onChangeModified }: JsonDiffEditorProps) {
+export function JsonDiffEditor({ original, modified, originalPlaceholder, modifiedPlaceholder, onChangeOriginal, onChangeModified }: JsonDiffEditorProps) {
     const [mounted, setMounted] = useState(false);
     const [origCursor, setOrigCursor] = useState({ line: 1, column: 1, position: 0 });
     const [modCursor, setModCursor] = useState({ line: 1, column: 1, position: 0 });
     const { mode } = useThemeContext();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery("(max-width: 899px)");
 
     const originalCharCount = original.length;
     const originalLineCount = original ? original.split(/\r\n|\r|\n/).length : 0;
-
     const modifiedCharCount = modified.length;
     const modifiedLineCount = modified ? modified.split(/\r\n|\r|\n/).length : 0;
 
     const handleEditorDidMount = (editor: any) => {
-        editor.updateOptions({
-            renderSideBySide: !isMobile
-        });
+        editor.updateOptions({ renderSideBySide: !isMobile });
         const origEditor = editor.getOriginalEditor();
         const modEditor = editor.getModifiedEditor();
 
         origEditor.onDidChangeModelContent(() => {
             if (onChangeOriginal) onChangeOriginal(origEditor.getValue());
         });
-
         modEditor.onDidChangeModelContent(() => {
             if (onChangeModified) onChangeModified(modEditor.getValue());
         });
@@ -72,7 +60,6 @@ export const JsonDiffEditor = memo(function JsonDiffEditor({ original, modified,
                 setOrigCursor({ line: position.lineNumber, column: position.column, position: offset });
             }
         });
-
         modEditor.onDidChangeCursorPosition((e: any) => {
             const position = e.position;
             const model = modEditor.getModel();
@@ -83,42 +70,33 @@ export const JsonDiffEditor = memo(function JsonDiffEditor({ original, modified,
         });
     };
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    useEffect(() => { setMounted(true); }, []);
 
     if (!mounted) {
-        return <Box sx={{ width: "100%", height: "100%", bgcolor: "action.hover", borderRadius: 2 }} />;
+        return <div className="w-full h-full bg-muted/50 rounded-lg" />;
     }
 
     return (
-        <Box sx={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 2,
-            overflow: "hidden",
-            border: 1,
-            borderColor: "divider",
-            position: "relative",
-        }}>
-            {/* Mobile Consolidated Placeholder */}
+        <div className="w-full h-full rounded-xl overflow-hidden border border-border relative">
+            {/* Mobile consolidated placeholder */}
             {isMobile && !original && !modified && (
-                <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", pointerEvents: "none", zIndex: 10, color: "text.disabled", fontSize: 13, textAlign: "center", width: "80%" }}>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-muted-foreground/50 text-sm text-center w-4/5">
                     Paste original and modified JSON to see differences
-                </Box>
+                </div>
             )}
 
-            {/* Desktop Placeholders */}
+            {/* Desktop placeholders */}
             {!isMobile && originalPlaceholder && !original && (
-                <Box sx={{ position: "absolute", top: "50%", left: "25%", transform: "translate(-50%, -50%)", pointerEvents: "none", zIndex: 10, color: "text.disabled", fontSize: 14, textAlign: "center" }}>
+                <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-muted-foreground/50 text-sm text-center">
                     {originalPlaceholder}
-                </Box>
+                </div>
             )}
             {!isMobile && modifiedPlaceholder && !modified && (
-                <Box sx={{ position: "absolute", top: "50%", left: "75%", transform: "translate(-50%, -50%)", pointerEvents: "none", zIndex: 10, color: "text.disabled", fontSize: 14, textAlign: "center" }}>
+                <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-muted-foreground/50 text-sm text-center">
                     {modifiedPlaceholder}
-                </Box>
+                </div>
             )}
+
             <DiffEditor
                 key={isMobile ? "inline" : "side-by-side"}
                 height="100%"
@@ -144,57 +122,35 @@ export const JsonDiffEditor = memo(function JsonDiffEditor({ original, modified,
                     enableSplitViewResizing: false,
                     splitViewDefaultRatio: 0.5,
                 }}
-                loading={<Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "text.secondary" }}>Loading diff editor...</Box>}
+                loading={
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        Loading diff editor...
+                    </div>
+                }
                 onMount={handleEditorDidMount}
             />
+
+            {/* Original status bar */}
             {original.length > 0 && (
-                <Box sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "calc(50% + 18px)",
-                    bgcolor: "background.paper",
-                    px: 1.5,
-                    py: 0.5,
-                    borderTopLeftRadius: 8,
-                    borderLeft: 1,
-                    borderTop: 1,
-                    borderColor: "divider",
-                    display: "flex",
-                    gap: 1.5,
-                    pointerEvents: "none",
-                    zIndex: 10,
-                }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>ORIGINAL —</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>length: {originalCharCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>lines: {originalLineCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Ln: {origCursor.line}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Col: {origCursor.column}</Typography>
-                </Box>
+                <div className="absolute bottom-0 right-[calc(50%+18px)] bg-card/90 backdrop-blur-sm px-3 py-1 rounded-tl-lg border-l border-t border-border flex gap-3 pointer-events-none z-10">
+                    <span className="status-bar-text">ORIGINAL —</span>
+                    <span className="status-bar-text">length: {originalCharCount}</span>
+                    <span className="status-bar-text">lines: {originalLineCount}</span>
+                    <span className="status-bar-text">Ln: {origCursor.line}</span>
+                    <span className="status-bar-text">Col: {origCursor.column}</span>
+                </div>
             )}
+
+            {/* Modified status bar */}
             {modified.length > 0 && (
-                <Box sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 18,
-                    bgcolor: "background.paper",
-                    px: 1.5,
-                    py: 0.5,
-                    borderTopLeftRadius: 8,
-                    borderLeft: 1,
-                    borderTop: 1,
-                    borderColor: "divider",
-                    display: "flex",
-                    gap: 1.5,
-                    pointerEvents: "none",
-                    zIndex: 10,
-                }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>MODIFIED —</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>length: {modifiedCharCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>lines: {modifiedLineCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Ln: {modCursor.line}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Col: {modCursor.column}</Typography>
-                </Box>
+                <div className="status-bar">
+                    <span className="status-bar-text">MODIFIED —</span>
+                    <span className="status-bar-text">length: {modifiedCharCount}</span>
+                    <span className="status-bar-text">lines: {modifiedLineCount}</span>
+                    <span className="status-bar-text">Ln: {modCursor.line}</span>
+                    <span className="status-bar-text">Col: {modCursor.column}</span>
+                </div>
             )}
-        </Box>
+        </div>
     );
-});
+}

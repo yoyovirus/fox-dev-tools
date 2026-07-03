@@ -1,0 +1,332 @@
+[
+  {
+    "file": "src\\app\\en\\base64-tools\\base64-encoder-decoder\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\base64-encoder-decoder\\page.tsx",
+    "props": "onClick={handleDownload} className=\"absolute top-4 right-4 z-10 shadow-lg\"",
+    "text": "<DownloadIcon className=\"mr-2 h-4 w-4\" /> Download {detectedFile?.extension?.toUpperCase() || \"Image\"}"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\base64-encoder-decoder\\page.tsx",
+    "props": "onClick={handleDownload}",
+    "text": "<DownloadIcon className=\"mr-2 h-4 w-4\" /> Download {detectedFile.extension.toUpperCase()}"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\base64-to-image\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\base64-to-image\\page.tsx",
+    "props": "onClick={handleDownload} size=\"sm\" className=\"absolute top-4 right-4 z-10 shadow-lg font-bold rounded-lg\"",
+    "text": "<DownloadIcon className=\"mr-2 h-4 w-4\" /> Download {metadata ? metadata.mime.split(\"/\")[1].toUpperCase() : \"Image\"}"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\image-to-base64\\page.tsx",
+    "props": "variant=\"outline\" size=\"sm\" onClick={(e) =",
+    "text": "{ e.stopPropagation(); processSample(); }} className=\"mt-2 rounded-lg\" > Load Sample Image"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\image-to-base64\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" className=\"h-7 text-xs rounded-md\" onClick={() =",
+    "text": "handleCopy(base64)}> <CopyIcon className=\"w-3 h-3 mr-1.5\" /> Copy"
+  },
+  {
+    "file": "src\\app\\en\\base64-tools\\image-to-base64\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" className=\"h-7 text-xs rounded-md\" onClick={() =",
+    "text": "handleCopy(getRawBase64())}> <CopyIcon className=\"w-3 h-3 mr-1.5\" /> Copy"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-diff\\page.tsx",
+    "props": "variant=\"outline\" onClick={swap} size=\"sm\" className=\"h-7 text-xs px-3 gap-1.5 rounded-md shadow-sm\"",
+    "text": "<UpdateIcon className=\"size-3\" /> Swap"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-diff\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-formatter\\page.tsx",
+    "props": "variant=\"default\" onClick={handleFormat} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\"",
+    "text": "<MagicWandIcon className=\"size-3.5\" /> Format"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-formatter\\page.tsx",
+    "props": "variant=\"default\" onClick={handleMinify} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\"",
+    "text": "<SizeIcon className=\"size-3.5\" /> Minify"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-formatter\\page.tsx",
+    "props": "variant=\"default\" onClick={handleSwap} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\"",
+    "text": "<UpdateIcon className=\"size-3.5\" /> Swap"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-formatter\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "handleLoadSample(SAMPLE_JSON_FORMATTER)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-path-tester\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-relationship-visualizer\\page.tsx",
+    "props": "variant={view === \"graph\" ? \"default\" : \"ghost\"} size=\"sm\" onClick={() =",
+    "text": "setView(\"graph\")} className={`h-7 px-3 text-xs gap-1.5 rounded-md ${view === \"graph\" ? \"shadow-sm\" : \"\"}`} > <TreeIcon className=\"size-3.5\" /> Graph"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-relationship-visualizer\\page.tsx",
+    "props": "variant={view === \"summary\" ? \"default\" : \"ghost\"} size=\"sm\" onClick={() =",
+    "text": "setView(\"summary\")} className={`h-7 px-3 text-xs gap-1.5 rounded-md ${view === \"summary\" ? \"shadow-sm\" : \"\"}`} > <TableIcon className=\"size-3.5\" /> Summary"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-relationship-visualizer\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "setInput(SAMPLE_JSON_RELATIONSHIP_VISUALIZER)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-to-table\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "setInput(SAMPLE_JSON_TO_TABLE)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-type-generator\\page.tsx",
+    "props": "variant={language === \"typescript\" ? \"default\" : \"ghost\"} onClick={() =",
+    "text": "setLanguage(\"typescript\")} size=\"sm\" className={cn( \"h-7 text-xs px-3 font-semibold rounded-md transition-all\", language === \"typescript\" ? \"bg-[#3178C6] text-white hover:bg-[#3178C6]/90 shadow-sm\" : \"text-muted-foreground hover:text-foreground\" )} > TS"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-type-generator\\page.tsx",
+    "props": "variant={language === \"go\" ? \"default\" : \"ghost\"} onClick={() =",
+    "text": "setLanguage(\"go\")} size=\"sm\" className={cn( \"h-7 text-xs px-3 font-semibold rounded-md transition-all\", language === \"go\" ? \"bg-[#00ADD8] text-white hover:bg-[#00ADD8]/90 shadow-sm\" : \"text-muted-foreground hover:text-foreground\" )} > GO"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-type-generator\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "setInput(SAMPLE_JSON_TYPE_GENERATOR)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-validator\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "handleLoadSample(SAMPLE)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\json-tools\\json-visualizer\\page.tsx",
+    "props": "variant=\"default\" onClick={() =",
+    "text": "setInput(SAMPLE_JSON_VISUALIZER)} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\" > <FileTextIcon className=\"size-3.5\" /> Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\anagram\\page.tsx",
+    "props": "variant=\"outline\" onClick={shuffleLetters} size=\"sm\" className=\"h-8 gap-1.5 rounded-md\"",
+    "text": "<ShuffleIcon className=\"size-3.5\" /> Shuffle"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\anagram\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\blabber\\page.tsx",
+    "props": "onClick={generate} size=\"sm\" variant=\"default\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\"",
+    "text": "<ReloadIcon className=\"size-3.5\" /> Regenerate"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toUpperCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "UPPER"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toLowerCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "lower"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toTitleCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Title"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toSentenceCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Sentence"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toCamelCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "camelCase"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toPascalCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "PascalCase"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toSnakeCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "snake_case"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toKebabCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "kebab-case"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toAlternatingCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "aLtErNaTiNg"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={toInverseCase} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "InVeRsE"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={capitalizeFirst} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Cap first"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\case-converter\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\find-replace\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={findPrevious} disabled={matches.length === 0} className=\"h-6 w-6 p-0\"",
+    "text": "<ChevronUpIcon className=\"size-3.5\" />"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\find-replace\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={findNext} disabled={matches.length === 0} className=\"h-6 w-6 p-0\"",
+    "text": "<ChevronDownIcon className=\"size-3.5\" />"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\find-replace\\page.tsx",
+    "props": "variant=\"secondary\" size=\"sm\" onClick={replace} disabled={!findText || currentMatchIndex < 0} className=\"h-7 text-xs font-medium px-2.5\"",
+    "text": "Replace"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\find-replace\\page.tsx",
+    "props": "variant=\"default\" size=\"sm\" onClick={replaceAll} disabled={!findText || matchCount === 0} className=\"h-7 text-xs font-medium px-2.5\"",
+    "text": "Replace All"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\find-replace\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={() =",
+    "text": "sortLines(true)} className=\"h-7 text-xs px-2.5 rounded-md\">Sort A-Z"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={() =",
+    "text": "sortLines(false)} className=\"h-7 text-xs px-2.5 rounded-md\">Sort Z-A"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={reverseLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Reverse"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={shuffleLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Shuffle"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={removeEmptyLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "No Empty"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={trimLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Trim"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={duplicateLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Duplicate"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={uniqueLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Unique"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={numberLines} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Number"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" size=\"sm\" onClick={removeNumbers} className=\"h-7 text-xs px-2.5 rounded-md\"",
+    "text": "Remove Numbers"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\line-tools\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\lorem-ipsum\\page.tsx",
+    "props": "variant=\"outline\" size=\"sm\" onClick={() =",
+    "text": "{ setParagraphs(1); setSentencesPerParagraph(3); setWordsPerParagraph(30); }} className=\"h-7 text-[11px] px-2\">Short"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\lorem-ipsum\\page.tsx",
+    "props": "variant=\"outline\" size=\"sm\" onClick={() =",
+    "text": "{ setParagraphs(3); setSentencesPerParagraph(5); setWordsPerParagraph(50); }} className=\"h-7 text-[11px] px-2\">Medium"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\lorem-ipsum\\page.tsx",
+    "props": "variant=\"outline\" size=\"sm\" onClick={() =",
+    "text": "{ setParagraphs(5); setSentencesPerParagraph(8); setWordsPerParagraph(80); }} className=\"h-7 text-[11px] px-2\">Long"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\lorem-ipsum\\page.tsx",
+    "props": "variant=\"outline\" size=\"sm\" onClick={() =",
+    "text": "{ setParagraphs(10); setSentencesPerParagraph(10); setWordsPerParagraph(120); }} className=\"h-7 text-[11px] px-2\">Article"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\lorem-ipsum\\page.tsx",
+    "props": "onClick={generate} size=\"sm\" variant=\"default\" className=\"h-8 gap-1.5 rounded-md\"",
+    "text": "<ReloadIcon className=\"size-3.5\" /> Regenerate"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\remove-duplicates\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\text-compare\\page.tsx",
+    "props": "variant=\"outline\" onClick={swapEditors} size=\"sm\" className=\"h-8 gap-1 rounded-md\"",
+    "text": "<ArrowLeftIcon className=\"size-3 -mr-1.5\" /> <ArrowRightIcon className=\"size-3\" /> Swap"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\text-compare\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\text-diff\\page.tsx",
+    "props": "variant=\"outline\" onClick={swapEditors} size=\"sm\" className=\"h-8 gap-1 rounded-md\"",
+    "text": "<ArrowLeftIcon className=\"size-3 -mr-1.5\" /> <ArrowRightIcon className=\"size-3\" /> Swap"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\text-diff\\page.tsx",
+    "props": "variant=\"ghost\" onClick={loadSample} size=\"sm\" className=\"h-7 text-xs px-2 rounded-md\"",
+    "text": "Sample"
+  },
+  {
+    "file": "src\\app\\en\\text-tools\\text-statistics\\page.tsx",
+    "props": "variant=\"default\" onClick={loadSample} size=\"sm\" className=\"h-8 px-3 text-xs gap-1.5 rounded-md shadow-sm hover:shadow transition-all\"",
+    "text": "<FileTextIcon className=\"size-3.5\" /> Sample"
+  }
+]

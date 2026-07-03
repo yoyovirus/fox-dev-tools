@@ -8,27 +8,30 @@
 */
 "use client";
 
-import { useEffect } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Copy, Download, Trash2, AlertCircle, FileText } from "lucide-react";
 import JsonView from "@uiw/react-json-view";
 import { darkTheme } from "@uiw/react-json-view/dark";
 import { Editor } from "@/components/Editor";
-import { Box, Typography, Button, alpha, useTheme, IconButton, Tooltip, Divider, Snackbar, Alert } from "@mui/material";
-import { DeleteOutline, ContentCopy, Download as DownloadIcon } from "@mui/icons-material";
 import { useThemeContext } from "@/components/AppThemeProvider";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
 import { SAMPLE_JSON_VISUALIZER } from "@/lib/sampleData";
 import { useToolPage } from "@/lib/hooks";
-import { isValidJson } from "@/lib/utils";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 export default function VisualizerPage() {
     const { mode } = useThemeContext();
-    const theme = useTheme();
+
     const {
         input, setInput,
-        error, setError,
+        error,
         handleCopy, handleDownload,
-        SnackbarProps,
     } = useToolPage({ validateJson: true });
 
     let parsedJson: object | null = null;
@@ -39,123 +42,75 @@ export default function VisualizerPage() {
     }
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Page Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON Visualizer"
                 toolColor={getToolColor("JSON Visualizer")}
                 description="Explore JSON structures in an interactive, collapsible tree view."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                    variant="outlined"
-                    onClick={() => setInput(SAMPLE_JSON_VISUALIZER)}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Sample
-                </Button>
-                {input && (
-                    <>
-                        <Tooltip title="Copy JSON">
-                            <IconButton onClick={() => handleCopy()} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopy sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Download JSON">
-                            <IconButton onClick={() => handleDownload(undefined, "json-visualizer.json")} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: 1.5 }} />
-                        <Tooltip title="Clear">
-                            <IconButton onClick={() => setInput("")} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                                <DeleteOutline sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-            </Box>
 
-            {/* Error Message */}
+
             {error && (
-                <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2, borderRadius: 2 }}>
-                    Invalid JSON: {error}
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>Invalid JSON: {error}</AlertDescription>
                 </Alert>
             )}
 
-            {/* Split Pane */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
-                {/* Input */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                         JSON Input
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => setInput(SAMPLE_JSON_VISUALIZER)} />
+                        {input && (
+                            <>
+                                <Separator orientation="vertical" className="h-4 mx-1" />
+                                <CopyButton textToCopy={input} tooltipText="Copy JSON" />
+                                <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download JSON" onClickAction={() => handleDownload(undefined, "json-visualizer.json")} />
+                                <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={() => setInput("")} />
+                            </>
+                        )}
+                    </div>
+                </div>
+                    <div className="flex-1">
                         <Editor
                             value={input}
                             placeholder="Paste your JSON here..."
                             onChange={(val) => setInput(val || "")}
                         />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                {/* Tree View */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        Tree View
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "auto",
-                        border: `1px solid ${theme.palette.divider}`,
-                        bgcolor: "background.paper",
-                        p: 2,
-                    }}>
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            Tree View
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {parsedJson && (
+                                <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => setInput("")} />
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-auto p-3">
                         {parsedJson ? (
-                            <Box sx={{ ...(mode === "dark" ? darkTheme : {}), backgroundColor: "transparent", fontSize: "13px" }}>
-                                <JsonView value={parsedJson} displayDataTypes={false} />
-                            </Box>
+                            <JsonView
+                                value={parsedJson}
+                                displayDataTypes={false}
+                                style={mode === "dark" ? (darkTheme as React.CSSProperties) : undefined}
+                            />
                         ) : (
-                            <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-                                    Enter valid JSON to see the tree view
-                                </Typography>
-                            </Box>
+                            <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                                Enter valid JSON to see the tree view
+                            </div>
                         )}
-                    </Box>
-                </Box>
-            </Box>
-
-            <Snackbar
-                {...SnackbarProps}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-        </Box>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
-

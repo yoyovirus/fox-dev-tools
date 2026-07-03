@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Shell } from "@/components/Shell";
+import { Geist, Geist_Mono } from "next/font/google";
+import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://fox-dev-tools.vercel.app'), // Assuming foxdevtools.com, or user can replace
+  metadataBase: new URL('https://fox-dev-tools.vercel.app'),
   title: {
     default: "FoX Dev Tools - Tools for Developers",
     template: "%s | FoX Dev Tools"
@@ -38,14 +45,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body>
-        <Shell>{children}</Shell>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("dark", geistSans.variable, geistMono.variable)}
+    >
+      <body className="font-sans antialiased">
+        <TooltipProvider delayDuration={200}>
+          <Shell>{children}</Shell>
+        </TooltipProvider>
+        <Toaster />
       </body>
     </html>
   );

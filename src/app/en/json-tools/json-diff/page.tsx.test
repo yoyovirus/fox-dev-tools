@@ -1,0 +1,197 @@
+/*
+  Website: FoX Dev Tools - Tools for Developers
+  Author: Rahul Khedekar
+  Copyright © 2026 FoX Dev Tools. All rights reserved.
+
+  This code is proprietary and may not be copied, modified,
+  or distributed without permission.
+*/
+"use client";
+
+import { useState, useEffect } from "react";
+import { JsonDiffEditor } from "@/components/JsonDiffEditor";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Card } from "@/components/ui/card";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+
+import { UpdateIcon, TrashIcon, CopyIcon, DownloadIcon, MagicWandIcon as FallbackIcon } from "@radix-ui/react-icons";
+
+import { ToolHeader } from "@/components/ToolHeader";
+import { getToolColor } from "@/lib/toolColors";
+
+function usePageSnackbar() {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const showSnackbar = (msg: string) => { setSnackbarMessage(msg); setSnackbarOpen(true); };
+    const handleCopy = async (text: string) => {
+        try { await navigator.clipboard.writeText(text); showSnackbar("Copied to clipboard!"); } catch {}
+    };
+    const handleDownload = (content: string, filename: string) => {
+        if (!content) return;
+        const blob = new Blob([content], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+    };
+    return { snackbarOpen, snackbarMessage, setSnackbarOpen, handleCopy, handleDownload };
+}
+
+export default function DiffPage() {
+    const [original, setOriginal] = useState<string>("");
+    const [modified, setModified] = useState<string>("");
+    const [origError, setOrigError] = useState<string | null>(null);
+    const [modError, setModError] = useState<string | null>(null);
+    const { snackbarOpen, snackbarMessage, setSnackbarOpen, handleCopy, handleDownload } = usePageSnackbar();
+    
+
+    useEffect(() => {
+        if (!original.trim()) {
+            setOrigError(null);
+            return;
+        }
+        try {
+            JSON.parse(original);
+            setOrigError(null);
+        } catch (e: any) {
+            setOrigError(e.message);
+        }
+    }, [original]);
+
+    useEffect(() => {
+        if (!modified.trim()) {
+            setModError(null);
+            return;
+        }
+        try {
+            JSON.parse(modified);
+            setModError(null);
+        } catch (e: any) {
+            setModError(e.message);
+        }
+    }, [modified]);
+
+    const swap = () => {
+        const temp = original;
+        setOriginal(modified);
+        setModified(temp);
+    };
+
+    const loadSample = () => {
+        setOriginal("{\n  \"name\": \"John Doe\",\n  \"age\": 30,\n  \"city\": \"New York\",\n  \"active\": false\n}");
+        setModified("{\n  \"name\": \"John Doe\",\n  \"age\": 31,\n  \"city\": \"London\",\n  \"active\": true,\n  \"role\": \"admin\"\n}");
+    };
+
+    const clearEditors = () => {
+        setOriginal("");
+        setModified("");
+    };
+
+    return (
+        <div className="h-full flex flex-col gap-0">
+            {/* Page Header */}
+            <ToolHeader
+                toolName="JSON Diff"
+                toolColor={getToolColor("JSON Diff")}
+                description="Compare two JSON objects and highlight their differences."
+            />
+
+            {/* Toolbar */}
+            <Card className="flex items-center gap-2 flex-wrap p-2 shadow-sm rounded-xl mb-4">
+                <Tooltip><TooltipTrigger asChild>
+                    <Button
+                        variant="outline"
+                        onClick={swap}
+                        size="sm"
+                        startIcon={<UpdateIcon className="size-4" />}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        Swap
+                    </Button>
+                </Tooltip>
+                <div className="flex-1" />
+                <Button
+                    variant="outline"
+                    onClick={loadSample}
+                    size="sm"
+                    sx={{ borderRadius: 2 }}
+                >
+                    Sample
+                </Button>
+                {modified && (
+                    <>
+                        <Tooltip><TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8" onClick={() => handleCopy(modified)}>
+                                <CopyIcon className="size-4 text-muted-foreground" />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip><TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8" onClick={() => handleDownload(modified, "json-diff.json")}>
+                                <DownloadIcon className="size-4 text-muted-foreground" />
+                            </Button>
+                        </Tooltip>
+                        <Separator orientation="vertical" className="h-5 mx-1" />
+                    </>
+                )}
+                {(original || modified) && (
+                    <Tooltip><TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8" onClick={clearEditors}>
+                            <TrashIcon className="size-4" />
+                        </Button>
+                    </Tooltip>
+                )}
+            </Box>
+
+            {/* Error Messages */}
+            {(origError || modError) && (
+                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                    {origError && (
+                        <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium flex items-center gap-2"><div className="size-1.5 rounded-full bg-destructive shrink-0" /> setOrigError(null)} sx={{ flex: 1, borderRadius: 2 }}>
+                            Original JSON Error: {origError}
+                        </div>
+                    )}
+                    {modError && (
+                        <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium flex items-center gap-2"><div className="size-1.5 rounded-full bg-destructive shrink-0" /> setModError(null)} sx={{ flex: 1, borderRadius: 2 }}>
+                            Modified JSON Error: {modError}
+                        </div>
+                    )}
+                </Box>
+            )}
+
+            {/* Diff Editor */}
+            <Box sx={{
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
+                flex: 1,
+            }}>
+                <Box sx={{ display: { xs: "none", md: "flex" }, mb: 1, gap: 0 }}>
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Original JSON</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Modified JSON</span>
+                </Box>
+                <Box sx={{
+                    flexGrow: 1,
+                    minHeight: 0,
+                    borderRadius: 2.5,
+                    overflow: "hidden",
+                    border: `1px solid ${theme.palette.divider}`,
+                    bgcolor: "background.paper",
+                }}>
+                    <JsonDiffEditor
+                        original={original}
+                        modified={modified}
+                        originalPlaceholder="Paste original JSON here..."
+                        modifiedPlaceholder="Paste modified JSON here..."
+                        onChangeOriginal={setOriginal}
+                        onChangeModified={setModified}
+                    />
+                </Box>
+            </Box>
+
+            {snackbarOpen && <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)} message={snackbarMessage} anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />}
+        </Box>
+    );
+}

@@ -8,12 +8,17 @@
 */
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Copy, Download, Trash2, AlertCircle, FileText, Code2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Editor } from "@/components/Editor";
-import { Box, Typography, Button, Snackbar, alpha, useTheme, Select, IconButton, Tooltip, Divider, Alert } from "@mui/material";
-import { ContentCopy, Code as CodeIcon, DeleteOutline, Download as DownloadIcon } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 function generateTypeScript(jsonStr: string, rootName = "Root"): string {
     try {
@@ -92,8 +97,6 @@ export default function TypeGeneratorPage() {
     const [output, setOutput] = useState<string>("");
     const [language, setLanguage] = useState<"typescript" | "go">("typescript");
     const [error, setError] = useState<string | null>(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const theme = useTheme();
 
     useEffect(() => {
         if (!input.trim()) {
@@ -117,7 +120,6 @@ export default function TypeGeneratorPage() {
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(output);
-            setSnackbarOpen(true);
         } catch (err) { }
     };
 
@@ -135,161 +137,81 @@ export default function TypeGeneratorPage() {
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Page Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON Type Generator"
                 toolColor={getToolColor("JSON Type Generator")}
                 description="Automatically generate TypeScript interfaces and Go structs from any JSON structure."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
+            <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
+                <div className="flex rounded-md border shadow-sm">
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 border-r ${language === 'typescript' ? 'bg-muted' : ''}`} onClick={() => setLanguage('typescript')}>
+                        <Code2 className="size-3.5" /> TypeScript
+                    </button>
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 ${language === 'go' ? 'bg-muted' : ''}`} onClick={() => setLanguage('go')}>
+                        <Code2 className="size-3.5" /> Go Structs
+                    </button>
+                </div>
+            </div>
 
-                <Box sx={{ display: "flex", gap: 1, ml: 0.5 }}>
-                    <Tooltip title="TypeScript">
-                        <IconButton
-                            onClick={() => {
-                                if (language !== "typescript") {
-                                    setLanguage("typescript");
-                                }
-                            }}
-                            sx={{
-                                width: 34,
-                                height: 34,
-                                bgcolor: language === "typescript" ? alpha("#3178C6", 0.1) : "transparent",
-                                border: `1px solid ${language === "typescript" ? alpha("#3178C6", 0.4) : theme.palette.divider}`,
-                                color: language === "typescript" ? "#3178C6" : "text.secondary",
-                                "&:hover": {
-                                    bgcolor: alpha("#3178C6", 0.15),
-                                    borderColor: alpha("#3178C6", 0.4),
-                                    color: "#3178C6",
-                                }
-                            }}
-                        >
-                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 800 }}>
-                                TS
-                            </Typography>
-                        </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Go Structs">
-                        <IconButton
-                            onClick={() => {
-                                if (language !== "go") {
-                                    setLanguage("go");
-                                }
-                            }}
-                            sx={{
-                                width: 34,
-                                height: 34,
-                                bgcolor: language === "go" ? alpha("#00ADD8", 0.1) : "transparent",
-                                border: `1px solid ${language === "go" ? alpha("#00ADD8", 0.4) : theme.palette.divider}`,
-                                color: language === "go" ? "#00ADD8" : "text.secondary",
-                                "&:hover": {
-                                    bgcolor: alpha("#00ADD8", 0.15),
-                                    borderColor: alpha("#00ADD8", 0.4),
-                                    color: "#00ADD8",
-                                }
-                            }}
-                        >
-                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 800 }}>
-                                GO
-                            </Typography>
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                    variant="outlined"
-                    onClick={() => setInput(SAMPLE_JSON_TYPE_GENERATOR)}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Sample
-                </Button>
-                {output && (
-                    <>
-                        <Tooltip title="Copy Types">
-                            <IconButton onClick={handleCopy} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopy sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Download Types">
-                            <IconButton onClick={handleDownload} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: 1.5 }} />
-                    </>
-                )}
-                {(input || output) && (
-                    <Tooltip title="Clear">
-                        <IconButton onClick={() => { setInput(""); setOutput(""); }} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                            <DeleteOutline sx={{ fontSize: 17 }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Box>
-
-            {/* Error Message */}
             {error && (
-                <Alert
-                    severity="error"
-                    onClose={() => setError(null)}
-                    sx={{ mb: 2, borderRadius: 2 }}
-                >
-                    {error}
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
-            {/* Split Pane */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
-                {/* Input */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        JSON Input
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            JSON Input
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => setInput(SAMPLE_JSON_TYPE_GENERATOR)} />
+                            {(input || output) && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+
+                                    <CopyButton textToCopy={input} tooltipText="Copy Input" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Input" onClickAction={() => {
+                                                const blob = new Blob([input], { type: "application/json" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "input.json"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear All" onClickAction={() => { setInput(""); setOutput(""); }} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor
                             value={input}
                             placeholder="Paste your JSON here..."
                             onChange={(val) => setInput(val || "")}
                         />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                {/* Output */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        {language === "typescript" ? "TypeScript" : "Go"} Output
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            {language === "typescript" ? "TypeScript" : "Go"} Output
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {output && (
+                                <>
+                                    <CopyButton textToCopy={output} tooltipText="Copy Types" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Types" onClickAction={handleDownload} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => { setInput(""); setOutput(""); }} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor
                             value={output}
                             language={language}
@@ -297,17 +219,9 @@ export default function TypeGeneratorPage() {
                             placeholder="Generated types/structs will appear here..."
                             onChange={() => { }}
                         />
-                    </Box>
-                </Box>
-            </Box>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={2000}
-                onClose={() => setSnackbarOpen(false)}
-                message="Types copied to clipboard!"
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-        </Box>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

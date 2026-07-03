@@ -1,80 +1,37 @@
 "use client";
 
-import { Box, Typography, Button, useTheme, alpha } from "@mui/material";
 import Link from "next/link";
-import { Home, ArrowLeft } from "@mui/icons-material";
+import { Button } from "@/components/ui/button";
+import { HomeIcon } from "@radix-ui/react-icons";
 
 export default function NotFound() {
-    const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
-
     return (
-        <Box
-            sx={{
-                minHeight: "100vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                px: 2,
-                background: isDark
-                    ? "radial-gradient(ellipse at center, rgba(124,58,237,0.15) 0%, transparent 70%)"
-                    : "radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%)",
-            }}
-        >
-            <Box sx={{ textAlign: "center", maxWidth: 600 }}>
-                <Typography
-                    variant="h1"
-                    sx={{
-                        fontSize: { xs: "6rem", sm: "8rem", md: "10rem" },
-                        fontWeight: 900,
-                        lineHeight: 1,
-                        background: "linear-gradient(135deg, #7C3AED 0%, #DB2777 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        mb: 2,
-                    }}
-                >
+        <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 relative overflow-hidden">
+            {/* Background radial gradient */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(124,58,237,0.15)_0%,_transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,_rgba(124,58,237,0.15)_0%,_transparent_70%)] opacity-50 dark:opacity-100" />
+
+            <div className="text-center max-w-[600px] relative z-10">
+                <h1 className="text-[6rem] sm:text-[8rem] md:text-[10rem] font-black leading-none mb-4 bg-gradient-to-br from-primary to-pink-600 bg-clip-text text-transparent">
                     404
-                </Typography>
+                </h1>
 
-                <Typography
-                    variant="h4"
-                    fontWeight={700}
-                    sx={{ mb: 2, color: "text.primary" }}
-                >
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
                     Page Not Found
-                </Typography>
+                </h2>
 
-                <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ mb: 4, fontSize: "1.1rem", lineHeight: 1.7 }}
-                >
+                <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                     Oops! The page you&apos;re looking for doesn&apos;t exist or has been moved.
                     <br />
                     Let&apos;s get you back on track.
-                </Typography>
+                </p>
 
-                <Button
-                    component={Link}
-                    href="/"
-                    variant="contained"
-                    startIcon={<Home />}
-                    size="large"
-                    sx={{
-                        px: 3,
-                        py: 1.5,
-                        fontWeight: 600,
-                        bgcolor: "primary.main",
-                        "&:hover": {
-                            bgcolor: "primary.dark",
-                        },
-                    }}
-                >
-                    Go Home
+                <Button asChild size="lg" className="px-8 font-semibold">
+                    <Link href="/">
+                        <HomeIcon className="mr-2 size-5" />
+                        Go Home
+                    </Link>
                 </Button>
-            </Box>
-        </Box>
+            </div>
+        </div>
     );
 }

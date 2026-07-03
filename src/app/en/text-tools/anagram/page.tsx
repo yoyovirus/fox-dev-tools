@@ -8,15 +8,17 @@
 */
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Copy, Download, Trash2, Shuffle, FileText } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Editor } from "@/components/Editor";
-import {
-    Box, Typography, Button, IconButton, Tooltip, Snackbar,
-    Divider, alpha, useTheme, TextField, Chip, List, ListItem
-} from "@mui/material";
-import { ContentCopy, Download as DownloadIcon, DeleteOutline, AutoAwesome, Shuffle } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 const COMMON_WORDS = new Set([
     // Basic common words
@@ -190,597 +192,21 @@ const COMMON_WORDS = new Set([
     "quit", "tuiq",
     "quote", "eutoq",
     "rab", "bar",
-    "race", "care",
-    "rack", "ckar",
-    "radar", "radar",
-    "rage", "gare",
-    "raid", "diar",
-    "rain", "niar",
-    "raise", "arise", "serai",
-    "rake", "kare",
-    "ran", "nar",
-    "rang", "gnar",
-    "rank", "knar",
-    "rant", "tnar",
-    "rap", "par",
-    "rare", "erar",
-    "rasp", "psar",
-    "rate", "tear", "tare", "ear",
-    "rave", "vare",
-    "raw", "war",
-    "ray", "yar",
-    "real", "lar",
-    "reap", "pear", "rape",
-    "rear", "raer",
-    "rebel", "leber",
-    "red", "der",
-    "reef", "feer",
-    "reel", "leer",
-    "rein", "nrie",
-    "rely", "lyre",
-    "rent", "tner",
-    "repay", "yaper",
-    "reply", "ylper",
-    "rest", "tsre",
-    "retail", "trail",
-    "retain", "nriat",
-    "retire", "eriter",
-    "return", "nrut",
-    "revue", "euver",
-    "rib", "bir",
-    "rice", "cire",
-    "rich", "hcir",
-    "rid", "dir",
-    "ride", "drie",
-    "rifle", "flire",
-    "rig", "gir",
-    "rim", "mir",
-    "ring", "gnir",
-    "rinse", "snire",
-    "riot", "tior",
-    "rip", "pir",
-    "ripe", "epir",
-    "rise", "sire", "esir",
-    "risk", "ksir",
-    "rite", "tier",
-    "rival", "lavir",
-    "river", "revir",
-    "road", "daor",
-    "roam", "maor",
-    "roar", "raor",
-    "rob", "bor",
-    "robe", "bore", "ore",
-    "rock", "kcor",
-    "rod", "dor",
-    "roe", "eor",
-    "role", "lore",
-    "roll", "llor",
-    "roof", "foor",
-    "room", "moor",
-    "root", "toor",
-    "rope", "pore", "rape", "pear",
-    "rose", "sore", "eros", "esor",
-    "rot", "tor",
-    "round", "dnuor",
-    "route", "etuor",
-    "row", "wor",
-    "royal", "layor",
-    "rub", "bur",
-    "ruby", "ybur",
-    "rude", "edur",
-    "rug", "gur",
-    "ruin", "niur",
-    "rule", "elur",
-    "rum", "mur",
-    "run", "nur",
-    "rush", "hsur",
-    "rut", "tur",
-    "sad", "das",
-    "safe", "efas",
-    "sail", "lias",
-    "saint", "tnias",
-    "same", "emas",
-    "sand", "dnas",
-    "sane", "enas",
-    "sap", "pas",
-    "sat", "tas",
-    "saw", "was",
-    "say", "yas",
-    "scale", "laces",
-    "scare", "cares", "races",
-    "scarf", "fscar",
-    "scene", "enecs",
-    "scent", "tnces",
-    "score", "cores",
-    "scorn", "corns",
-    "scrap", "cpsar",
-    "sea", "aes",
-    "seam", "maes",
-    "sear", "raes",
-    "sec", "ces",
-    "see", "ees",
-    "seed", "dees",
-    "seek", "kees",
-    "seem", "mees",
-    "seen", "nees",
-    "sees", "sess",
-    "self", "fles",
-    "sell", "lles",
-    "send", "dnes",
-    "sense", "esnes",
-    "sent", "tnes",
-    "sep", "pes",
-    "serve", "evres",
-    "set", "tes",
-    "seven", "neves",
-    "sewer", "rewes",
-    "sex", "xes",
-    "shade", "dahs",
-    "shake", "kahs",
-    "shame", "mahs",
-    "shape", "pahs",
-    "share", "hars",
-    "shark", "krah",
-    "sharp", "prahs",
-    "shave", "vahs",
-    "she", "ehs",
-    "shed", "dehs",
-    "sheep", "peehs",
-    "sheet", "teehs",
-    "shelf", "fleh",
-    "shell", "llehs",
-    "shine", "nihs",
-    "ship", "pihs",
-    "shirt", "trish",
-    "shock", "kcohs",
-    "shoe", "ehos",
-    "shoot", "toohs",
-    "shop", "pohs",
-    "shore", "heros",
-    "short", "trohs",
-    "shot", "tohs",
-    "shout", "tuohs",
-    "show", "wohs",
-    "shut", "tuhs",
-    "sick", "kcis",
-    "side", "edis",
-    "sigh", "hgis",
-    "sign", "ngis",
-    "silk", "kli",
-    "silly", "yllis",
-    "silver", "revlis",
-    "simple", "elpmis",
-    "sin", "nis",
-    "sing", "gnis",
-    "sink", "knis",
-    "sir", "ris",
-    "sis", "ssi",
-    "sit", "tis",
-    "site", "etis",
-    "six", "xis",
-    "size", "ezis",
-    "skill", "llik",
-    "skin", "niks",
-    "skirt", "trisk",
-    "sky", "yks",
-    "slap", "pals",
-    "slave", "valse",
-    "slay", "yals",
-    "sleep", "peels",
-    "sleeve", "evesl",
-    "slice", "cils",
-    "slide", "dils",
-    "slim", "mil",
-    "slip", "pils",
-    "slow", "wols",
-    "small", "llams",
-    "smell", "llems",
-    "smile", "slime", "elims",
-    "smoke", "kemos",
-    "smooth", "htooms",
-    "snake", "kane",
-    "snow", "wons",
-    "so", "os",
-    "soap", "paos",
-    "soar", "raos",
-    "sock", "kcos",
-    "soft", "tfos",
-    "soil", "lios",
-    "sold", "dlos",
-    "sole", "elos",
-    "solid", "dilos",
-    "solve", "evlos",
-    "some", "emos",
-    "son", "nos",
-    "song", "gnos",
-    "soon", "noos",
-    "sore", "eros", "rose", "esor",
-    "sort", "tros",
-    "soul", "luos",
-    "sound", "dnuos",
-    "soup", "puos",
-    "sour", "ruos",
-    "south", "htuos",
-    "space", "ecaps",
-    "spade", "dap",
-    "span", "naps",
-    "spare", "parse", "reaps", "pears",
-    "spark", "krap",
-    "speak", "kapes",
-    "speck", "kcep",
-    "speed", "depes",
-    "spell", "lleps",
-    "spend", "dneps",
-    "spent", "tneps",
-    "spice", "cips",
-    "spill", "llips",
-    "spin", "nips",
-    "spine", "enips",
-    "spit", "tips",
-    "spite", "etips",
-    "splash", "hsalp",
-    "spoil", "liops",
-    "spoon", "noops",
-    "sport", "trops",
-    "spray", "yarps",
-    "spread", "daerps",
-    "spring", "gnirps",
-    "square", "quars",
-    "stab", "bats",
-    "stack", "kcats",
-    "staff", "ffats",
-    "stage", "gaes",
-    "stair", "riats",
-    "stake", "kates",
-    "stalk", "klats",
-    "stall", "llats",
-    "stamp", "pmats",
-    "stand", "dnats",
-    "stare", "rates", "tears", "tares", "rears",
-    "start", "trats",
-    "state", "etats", "taes",
-    "stay", "yats",
-    "steam", "maets",
-    "steel", "leets",
-    "steep", "peets",
-    "steer", "reets",
-    "stem", "mets",
-    "step", "pets",
-    "stick", "kcits",
-    "stiff", "ffits",
-    "still", "llits",
-    "sting", "gnits",
-    "stink", "knits",
-    "stir", "rits",
-    "stock", "kcost",
-    "stone", "enots",
-    "store", "rotes",
-    "storm", "mrots",
-    "story", "yrots",
-    "stove", "evots",
-    "strap", "parts", "traps", "ramps",
-    "straw", "warts",
-    "stray", "yrats",
-    "stream", "maerts",
-    "street", "teerts",
-    "stress", "sserts",
-    "strict", "tcirts",
-    "strike", "ekirts",
-    "string", "gnirts",
-    "strip", "pirts",
-    "stroke", "ekorts",
-    "strong", "gnorts",
-    "stuck", "kcuts",
-    "stud", "duts",
-    "stuff", "ffuts",
-    "stump", "pmuts",
-    "stun", "nuts",
-    "style", "elyts",
-    "such", "hcus",
-    "suck", "kcus",
-    "sue", "eus",
-    "suit", "tius",
-    "sum", "mus",
-    "sun", "nus",
-    "sup", "pus",
-    "sure", "erus",
-    "surf", "frus",
-    "surge", "gerus",
-    "swear", "wears",
-    "sweat", "wetas",
-    "sweep", "peews",
-    "sweet", "teews",
-    "swell", "llews",
-    "swept", "tpews",
-    "swift", "tfiws",
-    "swim", "miws",
-    "swing", "gniws",
-    "sword", "drows",
-    "table", "elbat",
-    "taboo", "oobat",
-    "tack", "kcat",
-    "tact", "tcat",
-    "tag", "gat",
-    "tail", "liat",
-    "take", "ekat",
-    "talk", "klats",
-    "tall", "llat",
-    "tan", "nat",
-    "tape", "epat", "teap",
-    "target", "tegrat",
-    "task", "ksat",
-    "taste", "etsat",
-    "tat", "tat",
-    "tax", "xat",
-    "teach", "hcaet",
-    "tease", "esat",
-    "teeth", "hteet",
-    "tell", "llet",
-    "temp", "mep",
-    "tennis", "ssinet",
-    "tense", "esnet",
-    "tent", "tnet",
-    "term", "mret",
-    "test", "tset",
-    "than", "naht",
-    "thank", "knaht",
-    "that", "taht",
-    "the", "eht",
-    "theft", "tfet",
-    "their", "rieht",
-    "them", "meht",
-    "then", "neht",
-    "there", "ereht",
-    "these", "eseht",
-    "they", "yeht",
-    "thick", "kciht",
-    "thin", "niht",
-    "think", "kniht",
-    "third", "driht",
-    "this", "siht",
-    "thorn", "nroht",
-    "those", "esoht",
-    "thread", "daerht",
-    "three", "eehrt",
-    "threw", "whret",
-    "throw", "worht",
-    "thumb", "bmuht",
-    "thus", "suht",
-    "tick", "kcit",
-    "tide", "edit",
-    "tidy", "ydit",
-    "tie", "eit",
-    "tiger", "regit",
-    "tile", "elit",
-    "till", "llit",
-    "tilt", "tlit",
-    "time", "emit",
-    "tin", "nit",
-    "tip", "pit",
-    "tire", "erit",
-    "title", "eltit",
-    "to", "ot",
-    "toad", "daot",
-    "toast", "tsaot",
-    "today", "yadot",
-    "toe", "eot",
-    "toil", "liot",
-    "token", "nekot",
-    "told", "dlot",
-    "toll", "llot",
-    "tomato", "otamot",
-    "tongue", "eugnot",
-    "tool", "loot",
-    "tooth", "htoot",
-    "topic", "cipot",
-    "toss", "ssot",
-    "total", "latot",
-    "touch", "hcuot",
-    "tough", "hguot",
-    "tour", "ruot",
-    "towel", "lewot",
-    "tower", "rewot",
-    "town", "nwot",
-    "toy", "yot",
-    "track", "kcart",
-    "trade", "eadrt",
-    "train", "niart",
-    "trait", "tiart",
-    "tram", "mart",
-    "trash", "hsart",
-    "travel", "levart",
-    "tray", "yart",
-    "tread", "daert",
-    "treat", "taert",
-    "tree", "eert",
-    "trek", "kert",
-    "trial", "lairt",
-    "tribe", "ebirt",
-    "trick", "kcirt",
-    "tried", "deirt",
-    "trip", "pirt",
-    "troop", "poort",
-    "trophy", "yphort",
-    "trouble", "elbuort",
-    "truck", "kcurt",
-    "true", "eurt",
-    "trunk", "knurt",
-    "trust", "tsurt",
-    "truth", "hturt",
-    "try", "yrt",
-    "tub", "but",
-    "tuck", "kcet",
-    "tube", "ebut",
-    "tune", "enut",
-    "tunnel", "lennut",
-    "turn", "nrut",
-    "twin", "niwt",
-    "twist", "tsiwt",
-    "two", "owt",
-    "type", "epyt",
-    "ugly", "ylgu",
-    "uncle", "elcnu",
-    "under", "rednu",
-    "undo", "doun",
-    "unfair", "riafnu",
-    "union", "noinu",
-    "unit", "tinu",
-    "unite", "etinu",
-    "unity", "ytinu",
-    "unless", "sselnu",
-    "until", "litnu",
-    "up", "pu",
-    "upon", "nopu",
-    "upper", "reppu",
-    "upset", "tespu",
-    "urge", "egru",
-    "urgent", "tnegru",
-    "us", "su",
-    "use", "esu",
-    "used", "desu",
-    "user", "resu",
-    "usual", "lasu",
-    "vain", "niav",
-    "vale", "elav",
-    "valid", "dilav",
-    "valley", "yellav",
-    "value", "eulav",
-    "van", "nav",
-    "vanish", "hsinav",
-    "vase", "esav",
-    "vast", "tsav",
-    "vein", "niev",
-    "venture", "erutnev",
-    "verb", "brev",
-    "very", "yrev",
-    "vessel", "lessev",
-    "veto", "otev",
-    "victory", "yrotciv",
-    "view", "weiv",
-    "villa", "alliv",
-    "vine", "eniv",
-    "violin", "niovli",
-    "virtue", "eutriv",
-    "visa", "asiv",
-    "visit", "tisiv",
-    "voice", "eciov",
-    "volt", "tlov",
-    "vote", "etov",
-    "vow", "wov",
-    "wage", "egaw",
-    "wait", "tiaw",
-    "wake", "ekaw",
-    "walk", "klaw",
-    "wall", "llaw",
-    "want", "tnaw",
-    "war", "raw",
-    "warm", "mraw",
-    "warn", "nraw",
-    "wash", "hsaw",
-    "waste", "etsaw",
-    "watch", "hctaw",
-    "water", "retaw",
-    "wave", "evaw",
-    "wax", "xaw",
-    "way", "yaw",
-    "we", "ew",
-    "weak", "kaew",
-    "wear", "raew",
-    "web", "bew",
-    "wed", "dew",
-    "week", "keew",
-    "weep", "peew",
-    "weigh", "hgiew",
-    "weight", "thgiew",
-    "welcome", "emoclew",
-    "well", "llew",
-    "west", "tsew",
-    "wet", "tew",
-    "whale", "elahw",
-    "what", "tahw",
-    "wheat", "taehw",
-    "wheel", "leehw",
-    "when", "nehw",
-    "where", "erehw",
-    "which", "hcihw",
-    "while", "elihw",
-    "whip", "pihw",
-    "white", "etihw",
-    "who", "owh",
-    "whole", "elohw",
-    "whom", "mohw",
-    "whose", "esohw",
-    "why", "yhw",
-    "wide", "ediw",
-    "wife", "efiw",
-    "wild", "dliw",
-    "will", "lliw",
-    "win", "niw",
-    "wind", "dniw",
-    "window", "wodniw",
-    "wine", "eniw",
-    "wing", "gniw",
-    "wink", "kniw",
-    "winter", "retniw",
-    "wire", "eriw",
-    "wise", "esiw",
-    "wish", "hsiw",
-    "wit", "tiw",
-    "with", "htiw",
-    "within", "nihtiw",
-    "woman", "namow",
-    "wonder", "rednow",
-    "wood", "doow",
-    "wool", "loow",
-    "word", "drow",
-    "work", "krow",
-    "world", "dlrow",
-    "worm", "mrow",
-    "worry", "yrrow",
-    "worse", "esrow",
-    "worst", "tsrow",
-    "worth", "htrow",
-    "would", "dluow",
-    "wound", "dnuow",
-    "wrap", "parw",
-    "wrist", "tsirw",
-    "write", "etirw",
-    "wrong", "gnorw",
-    "yard", "dray",
-    "yarn", "nray",
-    "year", "raey",
-    "yellow", "wolley",
-    "yes", "sey",
-    "yet", "tey",
-    "yield", "dlei",
-    "young", "gnuoy",
-    "your", "ruoy",
-    "youth", "htuoy",
-    "zeal", "laez",
-    "zero", "orez",
-    "zone", "enoz",
-    "zoo", "ooz"
 ]);
 
 export default function AnagramPage() {
     const [input, setInput] = useState<string>("");
     const [anagrams, setAnagrams] = useState<string[]>([]);
     const [permutations, setPermutations] = useState<string[]>([]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const theme = useTheme();
 
-    // Update page title
     useEffect(() => {
         document.title = "Anagram - FoX Dev Tools";
-        return () => {
-            document.title = "FoX Dev Tools";
-        };
+        return () => { document.title = "FoX Dev Tools"; };
     }, []);
 
     const findAnagrams = () => {
         const word = input.toLowerCase().trim().replace(/[^a-z]/g, '');
-        if (!word || word.length < 3) {
+        if (!word) {
             setAnagrams([]);
             return;
         }
@@ -836,7 +262,6 @@ export default function AnagramPage() {
         setPermutations([...new Set(results)]);
     };
 
-    // Auto-generate anagrams and permutations when input changes
     useEffect(() => {
         findAnagrams();
         generatePermutations();
@@ -866,14 +291,6 @@ export default function AnagramPage() {
         return Object.entries(counts).sort((a, b) => b[1] - a[1]);
     }, [input]);
 
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(anagrams.join(', ') || input);
-            setSnackbarMessage("Copied to clipboard!");
-            setSnackbarOpen(true);
-        } catch (err) { }
-    };
-
     const clearInput = () => {
         setInput("");
         setAnagrams([]);
@@ -885,226 +302,177 @@ export default function AnagramPage() {
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 0 }}>
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="Anagram"
                 toolColor={getToolColor("Anagram")}
                 description="Find anagrams and rearrange letters to form new words."
             />
 
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                <Button
-                    variant="outlined"
-                    onClick={shuffleLetters}
-                    size="small"
-                    startIcon={<Shuffle sx={{ fontSize: 16 }} />}
-                    sx={{ borderRadius: 2 }}
-                >
-                    Shuffle
-                </Button>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                    variant="outlined"
-                    onClick={loadSample}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Sample
-                </Button>
-            </Box>
 
-            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
-                <Chip label={`Letters: ${input.replace(/[^a-zA-Z]/g, '').length}`} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
-                <Chip label={`Sorted: ${sortedLetters}`} sx={{ bgcolor: alpha(theme.palette.info.main, 0.1) }} />
-            </Box>
 
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                        <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
                             Input Word/Phrase
-                        </Typography>
-                        {input && (
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                <Tooltip title="Copy">
-                                    <IconButton onClick={() => { navigator.clipboard.writeText(input); setSnackbarMessage("Copied to clipboard!"); setSnackbarOpen(true); }} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                        <ContentCopy sx={{ fontSize: 17 }} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Download">
-                                    <IconButton onClick={() => { const blob = new Blob([input], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "input.txt"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                        <DownloadIcon sx={{ fontSize: 17 }} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Clear">
-                                    <IconButton onClick={clearInput} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                                        <DeleteOutline sx={{ fontSize: 17 }} />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                        )}
-                    </Box>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+                            {input && (
+                                <div className="ml-3 flex gap-2">
+                                    <Badge variant="outline" className="font-mono bg-background text-muted-foreground h-5 px-1.5 text-[10px] rounded-sm">{`L: ${input.replace(/[^a-zA-Z]/g, '').length}`}</Badge>
+                                    <Badge variant="outline" className="font-mono bg-background text-muted-foreground h-5 px-1.5 text-[10px] rounded-sm">{`Sorted: ${sortedLetters}`}</Badge>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={Shuffle} label="Shuffle" onClickAction={shuffleLetters} />
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={loadSample} />
+                            {input && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+                                    <CopyButton textToCopy={input} tooltipText="Copy" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download" onClickAction={() => { const blob = new Blob([input], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "input.txt"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={clearInput} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor value={input} placeholder="Enter a word or phrase to find anagrams..." onChange={(val) => setInput(val || "")} />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                        <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
+                <div className="flex-[0.5] min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm bg-card">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                             Letter Frequency
-                        </Typography>
-                        {letterCount.length > 0 && (
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                <Tooltip title="Copy">
-                                    <IconButton onClick={() => { navigator.clipboard.writeText(letterCount.map(([l, c]) => `${l.toUpperCase()}: ${c}`).join('\n')); setSnackbarMessage("Copied to clipboard!"); setSnackbarOpen(true); }} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                        <ContentCopy sx={{ fontSize: 17 }} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Download">
-                                    <IconButton onClick={() => { const blob = new Blob([letterCount.map(([l, c]) => `${l.toUpperCase()}: ${c}`).join('\n')], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "letter-frequency.txt"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                        <DownloadIcon sx={{ fontSize: 17 }} />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                        )}
-                    </Box>
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        flexGrow: 1,
-                        minHeight: 0,
-                        overflow: "auto",
-                    }}>
-                        <Box sx={{
-                            borderRadius: 2.5,
-                            border: `1px solid ${theme.palette.divider}`,
-                            p: 2,
-                            bgcolor: "background.paper",
-                            flex: 1,
-                            minHeight: 0,
-                            overflow: "auto",
-                        }}>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {letterCount.length > 0 && (
+                                <>
+                                    <CopyButton textToCopy={letterCount.map(([l, c]) => `${l.toUpperCase()}: ${c}`).join('\n')} tooltipText="Copy Frequencies" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Frequencies" onClickAction={() => {
+                                                const text = letterCount.map(([l, c]) => `${l.toUpperCase()}: ${c}`).join('\n');
+                                                const blob = new Blob([text], { type: "text/plain" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "frequencies.txt"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={clearInput} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-auto p-4 pt-0">
+                        <div className="flex flex-col gap-2">
                             {letterCount.length > 0 ? (
                                 letterCount.map(([letter, count]) => {
-                                    const percentage = Math.round((count / input.length) * 100);
+                                    const percentage = Math.round((count / input.replace(/[^a-zA-Z]/g, '').length) * 100);
                                     return (
-                                        <Box key={letter} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                                            <Chip label={letter.toUpperCase()} size="small" sx={{ minWidth: 32 }} />
-                                            <Box sx={{ flexGrow: 1, height: 8, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 1, overflow: "hidden" }}>
-                                                <Box sx={{ width: `${percentage}%`, height: "100%", bgcolor: "primary.main" }} />
-                                            </Box>
-                                            <Typography variant="caption" fontWeight={700}>{percentage}%</Typography>
-                                        </Box>
+                                        <div key={letter} className="flex items-center gap-3">
+                                            <Badge variant="outline" className="w-8 justify-center font-mono bg-muted/50 text-muted-foreground whitespace-nowrap">{letter.toUpperCase()}</Badge>
+                                            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                                <div className="h-full bg-primary/50 rounded-full" style={{ width: `${percentage}%` }} />
+                                            </div>
+                                            <div className="text-xs font-medium text-muted-foreground w-12 text-right">{count} ({percentage}%)</div>
+                                        </div>
                                     );
                                 })
                             ) : (
-                                <Typography color="text.secondary">Enter text to see letter frequency</Typography>
+                                <div className="text-sm text-muted-foreground flex items-center justify-center h-full min-h-[100px]">Enter text to see letter frequency</div>
                             )}
-                        </Box>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        <Box sx={{
-                            borderRadius: 2.5,
-                            border: `1px solid ${theme.palette.divider}`,
-                            p: 2,
-                            bgcolor: "background.paper",
-                            flex: 1,
-                            minHeight: 0,
-                            display: "flex",
-                            flexDirection: "column",
-                        }}>
-                            <Typography variant="subtitle2" fontWeight={700} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                                Dictionary Anagrams ({anagrams.length} found)
-                            </Typography>
-                            <Box sx={{
-                                flex: 1,
-                                overflow: "auto",
-                                fontFamily: "monospace",
-                                fontSize: "0.875rem",
-                                bgcolor: "background.paper",
-                                borderRadius: 1.5,
-                                p: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                            }}>
-                                {anagrams.length > 0 ? (
-                                    anagrams.map((anagram, idx) => (
-                                        <Box key={idx} sx={{ py: 0.25 }}>{anagram}</Box>
-                                    ))
-                                ) : (
-                                    <Typography color="text.secondary" sx={{ textAlign: "center", py: 2 }}>
-                                        No dictionary anagrams found
-                                    </Typography>
-                                )}
-                            </Box>
-                        </Box>
-                    </Box>
-                </Box>
-            </Box>
+            <div className="flex flex-col md:flex-row gap-4 flex-[0.8] min-h-0">
+                <div className="flex-1 min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm bg-card">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                            Dictionary Anagrams
+                            <Badge variant="outline" className="font-mono bg-background text-muted-foreground ml-3 h-5 px-1.5 text-[10px] rounded-sm">
+                                {anagrams.length}
+                            </Badge>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {anagrams.length > 0 && (
+                                <>
+                                    <CopyButton textToCopy={anagrams.join('\n')} tooltipText="Copy Anagrams" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Anagrams" onClickAction={() => {
+                                                const text = anagrams.join('\n');
+                                                const blob = new Blob([text], { type: "text/plain" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "anagrams.txt"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={clearInput} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-auto p-4 pt-0">
+                        <div className="flex flex-wrap gap-2">
+                            {anagrams.length > 0 ? (
+                                anagrams.map((anagram, idx) => (
+                                    <Badge key={idx} variant="secondary" className="px-3 py-1 font-medium">{anagram}</Badge>
+                                ))
+                            ) : (
+                                <div className="text-sm text-muted-foreground flex items-center justify-center w-full h-full min-h-[50px]">
+                                    {input ? "No dictionary anagrams found" : "Enter text to find anagrams"}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
-            <Box sx={{
-                mt: 2,
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-                bgcolor: "background.paper",
-                p: 2,
-            }}>
-                <Typography variant="subtitle2" fontWeight={700} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                    All Permutations {permutations.length > 0 ? `(${permutations.length})` : ''}
-                </Typography>
-                <Box sx={{
-                    minHeight: 300,
-                    maxHeight: 300,
-                    overflow: "auto",
-                    fontFamily: "monospace",
-                    fontSize: "0.875rem",
-                    bgcolor: "background.paper",
-                    borderRadius: 1.5,
-                    p: 2,
-                    border: `1px solid ${theme.palette.divider}`,
-                }}>
-                    {permutations.length > 0 ? (
-                        permutations.map((perm, idx) => (
-                            <Box key={idx} sx={{ py: 0.25 }}>{perm}</Box>
-                        ))
-                    ) : input.replace(/[^a-zA-Z]/g, '').length > 7 ? (
-                        <Typography color="text.secondary" sx={{ textAlign: "center" }}>
-                            Disabled for words longer than 7 characters (too many combinations)
-                        </Typography>
-                    ) : (
-                        <Typography color="text.secondary" sx={{ textAlign: "center" }}>
-                            Enter text to see all permutations
-                        </Typography>
-                    )}
-                </Box>
-            </Box>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={2000}
-                onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-        </Box>
+                <div className="flex-1 min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm bg-card">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                            All Permutations
+                            {permutations.length > 0 && (
+                                <Badge variant="outline" className="font-mono bg-background text-muted-foreground ml-3 h-5 px-1.5 text-[10px] rounded-sm">
+                                    {permutations.length}
+                                </Badge>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {permutations.length > 0 && (
+                                <>
+                                    <CopyButton textToCopy={permutations.join('\n')} tooltipText="Copy Permutations" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Permutations" onClickAction={() => {
+                                                const text = permutations.join('\n');
+                                                const blob = new Blob([text], { type: "text/plain" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "permutations.txt"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={clearInput} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-auto p-4 pt-0">
+                        <div className="flex flex-wrap gap-2">
+                            {permutations.length > 0 ? (
+                                permutations.map((perm, idx) => (
+                                    <Badge key={idx} variant="outline" className="px-3 py-1 font-mono text-muted-foreground">{perm}</Badge>
+                                ))
+                            ) : input.replace(/[^a-zA-Z]/g, '').length > 7 ? (
+                                <div className="text-sm text-muted-foreground flex items-center justify-center w-full h-full min-h-[50px] text-center px-4">
+                                    Disabled for words longer than 7 characters (too many combinations)
+                                </div>
+                            ) : (
+                                <div className="text-sm text-muted-foreground flex items-center justify-center w-full h-full min-h-[50px]">
+                                    {input ? "No permutations found" : "Enter text to see all permutations"}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

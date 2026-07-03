@@ -1,31 +1,23 @@
-/*
-  Website: FoX Dev Tools - Tools for Developers
-  Author: Rahul Khedekar
-  Copyright © 2026 FoX Dev Tools. All rights reserved.
-
-  This code is proprietary and may not be copied, modified,
-  or distributed without permission.
-*/
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { FileText, Trash2, Search, Download, Copy, X, AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Editor } from "@/components/Editor";
-import {
-    Box, Typography, Button, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, alpha, useTheme, Chip, TextField, IconButton, Tooltip, Snackbar, Divider, Alert, InputAdornment
-} from "@mui/material";
-import { Search as SearchIcon, Download as DownloadIcon, ContentCopy as ContentCopyIcon, Clear as ClearIcon, DeleteOutline } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
 import { SAMPLE_JSON_TO_TABLE } from "@/lib/sampleData";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 export default function ToTablePage() {
     const [input, setInput] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const theme = useTheme();
 
     useEffect(() => {
         if (!input.trim()) {
@@ -68,7 +60,7 @@ export default function ToTablePage() {
         const csvContent = [
             headers.join(","),
             ...parsedData.map((row: any) =>
-                headers.map((h) => 
+                headers.map((h) =>
                     typeof row[h] === "object" ? `"${JSON.stringify(row[h]).replace(/"/g, '""')}"` : `"${String(row[h] ?? "").replace(/"/g, '""')}"`
                 ).join(",")
             )
@@ -82,249 +74,141 @@ export default function ToTablePage() {
         URL.revokeObjectURL(url);
     };
 
-    const copyMarkdown = async () => {
-        if (!parsedData || parsedData.length === 0) return;
+    const handleCopyMarkdown = () => {
+        if (!parsedData || parsedData.length === 0) return "";
+        const headers = Object.keys(parsedData[0]);
         const headerRow = `| ${headers.join(" | ")} |`;
         const dividerRow = `| ${headers.map(() => "---").join(" | ")} |`;
-        const dataRows = parsedData.map((row: any) => 
+        const dataRows = parsedData.map((row: any) =>
             `| ${headers.map(h => typeof row[h] === "object" ? JSON.stringify(row[h]) : String(row[h] ?? "")).join(" | ")} |`
         ).join("\n");
-        const mdText = `${headerRow}\n${dividerRow}\n${dataRows}`;
-        
-        try {
-            await navigator.clipboard.writeText(mdText);
-            setSnackbarMessage("Markdown copied to clipboard!");
-            setSnackbarOpen(true);
-        } catch (err) {}
+        return `${headerRow}\n${dividerRow}\n${dataRows}`;
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Page Header */}
+        <div className="h-full flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON to Table"
                 toolColor={getToolColor("JSON to Table")}
                 description="Convert JSON arrays into clean, readable tables instantly."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                {parsedData ? (
-                    <TextField
-                        size="small"
-                        label="Search Table"
-                        placeholder="Search in any column..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon sx={{ fontSize: 18, color: "primary.main" }} />
-                                </InputAdornment>
-                            ),
-                            endAdornment: searchQuery ? (
-                                <IconButton size="small" onClick={() => setSearchQuery("")} sx={{ mr: -1 }}>
-                                    <ClearIcon sx={{ fontSize: 16 }} />
-                                </IconButton>
-                            ) : null,
-                            sx: { borderRadius: 2, fontSize: "0.875rem" }
-                        }}
-                        sx={{
-                            flexGrow: 1,
-                            "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                            "& .MuiFormLabel-root": { fontSize: "0.875rem" }
-                        }}
-                    />
-                ) : (
-                    <Box sx={{ flexGrow: 1 }} />
-                )}
-                <Box sx={{ flexGrow: 0, width: 8 }} />
+            <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
                 {parsedData && (
-                    <Chip
-                        label={`${parsedData.length} rows · ${headers.length} columns`}
-                        size="small"
-                        sx={{
-                            fontWeight: 600,
-                            fontSize: "0.72rem",
-                            bgcolor: alpha(theme.palette.primary.main, 0.08),
-                            color: "primary.main",
-                            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                        }}
-                    />
+                    <div className="relative w-full max-w-sm">
+                        <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search in any column..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 pr-9 bg-background h-8"
+                        />
+                        {searchQuery && (
+                            <Button variant="ghost" size="icon" className="absolute right-1 top-1 size-6 hover:bg-muted/50 rounded-md" onClick={() => setSearchQuery("")}>
+                                <X className="size-3.5" />
+                            </Button>
+                        )}
+                    </div>
                 )}
-                <Button
-                    variant="outlined"
-                    onClick={() => setInput(SAMPLE_JSON_TO_TABLE)}
-                    size="small"
-                    sx={{ borderRadius: 2, ml: parsedData ? 1.5 : 0 }}
-                >
-                    Sample
-                </Button>
-                {parsedData && (
-                    <>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: 1.5 }} />
-                        <Tooltip title="Export CSV">
-                            <IconButton onClick={exportCsv} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Copy MD">
-                            <IconButton onClick={copyMarkdown} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopyIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-                {input && (
-                    <>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: parsedData ? 0.5 : 0 }} />
-                        <Tooltip title="Clear">
-                            <IconButton onClick={() => setInput("")} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                                <DeleteOutline sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-            </Box>
+            </div>
 
-            {/* Error Message */}
             {error && (
-                <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2, borderRadius: 2 }}>
-                    Invalid JSON: {error}
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>Invalid JSON: {error}</AlertDescription>
                 </Alert>
             )}
 
-            {/* Split Pane */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
-                {/* Input Editor */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        JSON Input
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+                <div className="flex-1 min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            JSON Input
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => setInput(SAMPLE_JSON_TO_TABLE)} />
+                            {input && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+
+                                    <CopyButton textToCopy={input} tooltipText="Copy Input" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Input" onClickAction={() => {
+                                                const blob = new Blob([input], { type: "application/json" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "input.json"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Input" onClickAction={() => setInput("")} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 min-h-0 bg-background">
                         <Editor
                             value={input}
                             placeholder='Paste a JSON array like [{"id": 1, "name": "Alice"}]...'
                             onChange={(val) => setInput(val || "")}
                         />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                {/* Table Output */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        Table Output
-                    </Typography>
-                    <TableContainer
-                        component={Paper}
-                        variant="outlined"
-                        sx={{
-                            flexGrow: 1,
-                            minHeight: 0,
-                            overflow: "auto",
-                            border: `1px solid ${theme.palette.divider}`,
-                            bgcolor: "background.paper",
-                        }}
-                    >
+                <div className="flex-1 min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                            Table Output
+                            {parsedData && (
+                                <Badge variant="outline" className="font-mono bg-background text-muted-foreground ml-3 h-5 px-1.5 text-[10px] rounded-sm">
+                                    {parsedData.length} rows · {headers.length} cols
+                                </Badge>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {parsedData && (
+                                <>
+                                    <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={Download} tooltipText="Export CSV" onClickAction={exportCsv} />
+                                    <CopyButton textToCopy={handleCopyMarkdown} tooltipText="Copy Markdown Table" size="sm" className="h-7 px-2 text-xs gap-1.5" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => setInput("")} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-auto bg-card">
                         {parsedData && parsedData.length > 0 ? (
-                            <Table stickyHeader size="small">
-                                <TableHead>
-                                    <TableRow>
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 sticky top-0 border-b z-10">
+                                    <tr>
                                         {headers.map((h, i) => (
-                                            <TableCell
-                                                key={i}
-                                                sx={{
-                                                    fontWeight: 700,
-                                                    fontSize: "0.78rem",
-                                                    textTransform: "uppercase",
-                                                    letterSpacing: "0.05em",
-                                                    bgcolor: alpha(theme.palette.primary.main, 0.06),
-                                                    color: "primary.main",
-                                                    borderBottom: `2px solid ${theme.palette.divider}`,
-                                                    whiteSpace: "nowrap",
-                                                }}
-                                            >
+                                            <th key={i} className="px-4 py-2 font-semibold border-r last:border-r-0 whitespace-nowrap">
                                                 {h}
-                                            </TableCell>
+                                            </th>
                                         ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     {parsedData.map((row: any, i: number) => (
-                                        <TableRow
-                                            key={i}
-                                            hover
-                                            sx={{
-                                                "&:last-child td": { borderBottom: 0 },
-                                                "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.03) },
-                                            }}
-                                        >
-                                            {headers.map((h, j) => (
-                                                <TableCell
-                                                    key={j}
-                                                    sx={{ fontSize: "0.82rem" }}
-                                                >
-                                                    {typeof row[h] === "boolean"
-                                                        ? (
-                                                            <Chip
-                                                                label={String(row[h])}
-                                                                size="small"
-                                                                sx={{
-                                                                    height: 20,
-                                                                    fontSize: "0.68rem",
-                                                                    fontWeight: 700,
-                                                                    bgcolor: row[h] ? alpha("#059669", 0.1) : alpha("#DC2626", 0.1),
-                                                                    color: row[h] ? "#059669" : "#DC2626",
-                                                                }}
-                                                            />
-                                                        )
-                                                        : typeof row[h] === "object"
-                                                            ? JSON.stringify(row[h])
-                                                            : String(row[h] ?? "")}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
+                                        <tr key={i} className="border-b last:border-b-0 hover:bg-muted/30">
+                                            {headers.map((h, j) => {
+                                                const val = row[h];
+                                                const displayVal = typeof val === "object" ? JSON.stringify(val) : String(val ?? "");
+                                                return (
+                                                    <td key={j} className="px-4 py-2 border-r last:border-r-0 max-w-[200px] truncate" title={displayVal}>
+                                                        {displayVal}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
                                     ))}
-                                </TableBody>
-                            </Table>
+                                </tbody>
+                            </table>
                         ) : (
-                            <Box sx={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "text.secondary", gap: 1, p: 3 }}>
-                                <Typography sx={{ fontSize: "0.875rem", textAlign: "center" }}>
-                                    Provide a valid JSON array to generate a table
-                                </Typography>
-                            </Box>
+                            <div className="h-full flex items-center justify-center text-sm text-muted-foreground p-4 text-center">
+                                {input && !error ? "JSON object/array doesn't have tabular data to display." : "Enter a valid JSON array of objects to view as a table."}
+                            </div>
                         )}
-                    </TableContainer>
-                </Box>
-            </Box>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={2000}
-                onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-        </Box>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
-

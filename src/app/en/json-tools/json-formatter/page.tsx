@@ -8,27 +8,28 @@
 */
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Wand2, Shrink, Copy, Download, Trash2, AlertCircle, FileText, ArrowRightLeft } from "lucide-react";
 import { useState } from "react";
 import { Editor } from "@/components/Editor";
-import {
-    Box, Typography, Button, IconButton, Tooltip, Stack, Alert, Snackbar,
-    Select, MenuItem, FormControl, InputLabel, Divider, alpha, useTheme, Chip
-} from "@mui/material";
-import { ContentCopy, Download as DownloadIcon, DeleteOutline, AutoAwesome, SwapHoriz as SwapHorizIcon } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
 import { SAMPLE_JSON_FORMATTER } from "@/lib/sampleData";
 import { useToolPage } from "@/lib/hooks";
 import { formatJson, minifyJson } from "@/lib/utils";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 export default function FormatterPage() {
-    const theme = useTheme();
     const {
         input, setInput,
         output, setOutput,
-        error, setError,
+        error,
         handleCopy, handleDownload, handleClear, handleLoadSample,
-        SnackbarProps,
     } = useToolPage({ validateJson: true });
     const [indent, setIndent] = useState<number>(2);
 
@@ -53,156 +54,86 @@ export default function FormatterPage() {
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 0 }}>
-            {/* Page Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON Formatter"
                 toolColor={getToolColor("JSON Formatter")}
                 description="Beautify and minify JSON with customizable indentation."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                <Button
-                    variant="contained"
-                    onClick={handleFormat}
-                    startIcon={<AutoAwesome sx={{ fontSize: 16 }} />}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Format
-                </Button>
-                <Button
-                    variant="outlined"
-                    onClick={handleMinify}
-                    size="small"
-                    sx={{
-                        borderRadius: 2,
-                        borderColor: "secondary.main",
-                        color: "secondary.main",
-                        "&:hover": { borderColor: "secondary.dark", bgcolor: alpha(theme.palette.secondary.main, 0.06) }
-                    }}
-                >
-                    Minify
-                </Button>
-                <FormControl size="small" sx={{ minWidth: 110 }}>
-                    <Select
-                        value={indent}
-                        onChange={(e) => setIndent(Number(e.target.value))}
-                        sx={{ borderRadius: 2, fontSize: "0.8rem", height: 33 }}
-                    >
-                        <MenuItem value={2}>2 Spaces</MenuItem>
-                        <MenuItem value={4}>4 Spaces</MenuItem>
-                        <MenuItem value={8}>8 Spaces</MenuItem>
-                    </Select>
-                </FormControl>
-                <Tooltip title="Swap input ↔ output">
-                    <Button
-                        variant="outlined"
-                        onClick={handleSwap}
-                        size="small"
-                        startIcon={<SwapHorizIcon sx={{ fontSize: 16 }} />}
-                        sx={{ borderRadius: 2 }}
-                    >
-                        Swap
-                    </Button>
-                </Tooltip>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                    variant="outlined"
-                    onClick={() => handleLoadSample(SAMPLE_JSON_FORMATTER)}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Sample
-                </Button>
-                {(input || output) && (
-                    <>
-                        <Tooltip title="Copy JSON">
-                            <IconButton onClick={() => handleCopy()} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopy sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Download JSON">
-                            <IconButton onClick={() => handleDownload(undefined, "formatted.json")} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: 1.5 }} />
-                    </>
-                )}
-                {(input || output) && (
-                    <Tooltip title="Clear">
-                        <IconButton onClick={() => handleClear()} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                            <DeleteOutline sx={{ fontSize: 17 }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Box>
+            <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
+                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={Wand2} label="Format" onClickAction={handleFormat} />
+                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={Shrink} label="Minify" onClickAction={handleMinify} />
+                <Select value={indent.toString()} onValueChange={(val) => setIndent(Number(val))}>
+                    <SelectTrigger className="w-[110px] h-8 text-xs bg-background shadow-sm">
+                        <SelectValue placeholder="Indent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="2">2 Spaces</SelectItem>
+                        <SelectItem value="4">4 Spaces</SelectItem>
+                        <SelectItem value="8">8 Spaces</SelectItem>
+                    </SelectContent>
+                </Select>
+                <div className="flex-1" />
+                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={ArrowRightLeft} tooltipText="Swap input ↔ output" onClickAction={handleSwap} />
+            </div>
 
-            {/* Error Alert */}
             {error && (
-                <Alert
-                    severity="error"
-                    onClose={() => setError(null)}
-                    sx={{ mb: 2, borderRadius: 2 }}
-                >
-                    {error}
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
-            {/* Split Pane */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                minHeight: 0,
-                flex: 1,
-            }}>
-                {/* Input */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        JSON Input
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            JSON Input
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => handleLoadSample(SAMPLE_JSON_FORMATTER)} />
+                            {(input || output) && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+                                    <CopyButton textToCopy={input} tooltipText="Copy Input" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download Input" onClickAction={() => {
+                                                const blob = new Blob([input], { type: "application/json" });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement("a");
+                                                a.href = url; a.download = "input.json"; document.body.appendChild(a); a.click();
+                                                document.body.removeChild(a); URL.revokeObjectURL(url);
+                                            }} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Input" onClickAction={() => handleClear()} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor value={input} placeholder="Paste your JSON here..." onChange={(val) => setInput(val || "")} />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                {/* Output */}
-                <Box sx={{ flex: "1 1 0", minWidth: 300, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        Formatted JSON
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1,
-                        minHeight: 0,
-                        borderRadius: 2.5,
-                        overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+                <div className="flex-1 min-w-[300px] min-h-[250px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            Formatted JSON
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {output && (
+                                <>
+                                    <CopyButton textToCopy={output} tooltipText="Copy JSON" />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download JSON" onClickAction={() => handleDownload(undefined, "formatted.json")} />
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => handleClear()} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor value={output} placeholder="Formatted JSON will appear here..." onChange={(val) => setOutput(val || "")} readOnly={true} />
-                    </Box>
-                </Box>
-            </Box>
-
-            <Snackbar
-                {...SnackbarProps}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-        </Box>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

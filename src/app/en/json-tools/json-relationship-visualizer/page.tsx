@@ -1,3 +1,4 @@
+"use client";
 /*
   Website: FoX Dev Tools - Tools for Developers
   Author: Rahul Khedekar
@@ -6,24 +7,20 @@
   This code is proprietary and may not be copied, modified,
   or distributed without permission.
 */
-"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Network, Table, Maximize, ZoomIn, ZoomOut, Download, Trash2, AlertCircle, FileText, Copy } from "lucide-react";
 import { Editor } from "@/components/Editor";
-import {
-    Box, Typography, Button, IconButton, Tooltip, Alert, Snackbar,
-    Chip, alpha, useTheme, Divider, ToggleButton, ToggleButtonGroup,
-} from "@mui/material";
-import {
-    DeleteOutline, Download as DownloadIcon,
-    AccountTree as TreeIcon, TableChart as TableIcon,
-    FitScreen as FitScreenIcon,
-    ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon,
-} from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
 import { SAMPLE_JSON_RELATIONSHIP_VISUALIZER } from "@/lib/sampleData";
-
+import { useTheme } from "next-themes";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 type NodeType = "object" | "array" | "string" | "number" | "boolean" | "null";
 
 interface TreeNode {
@@ -168,8 +165,10 @@ function layoutTree(root: TreeNode): LayoutNode[] {
 }
 
 function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | null, json: any }) {
-    const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+    const isDark = mounted && resolvedTheme === "dark";
     const [zoom, setZoom] = useState(1);
     const [offset, setOffset] = useState({ x: 40, y: 40 });
     const [isDragging, setIsDragging] = useState(false);
@@ -230,10 +229,10 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
         const handleWheelManual = (e: WheelEvent) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            
+
             setZoom(prevZoom => {
                 const newZoom = Math.min(Math.max(prevZoom * delta, 0.1), 3);
-                
+
                 const rect = container.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
@@ -259,10 +258,10 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
         const scaleX = (container.clientWidth - padding) / contentW;
         const scaleY = (container.clientHeight - padding) / contentH;
         const newZoom = Math.min(scaleX, scaleY, 1);
-        
+
         const offsetX = (container.clientWidth - contentW * newZoom) / 2 - minX * newZoom;
         const offsetY = (container.clientHeight - contentH * newZoom) / 2 - minY * newZoom;
-        
+
         setZoom(newZoom);
         setOffset({ x: offsetX, y: offsetY });
     };
@@ -272,76 +271,46 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
         fit();
     }, [tree]);
 
-
     return (
-        <Box 
+        <div
             ref={containerRef}
+            className="w-full h-full relative overflow-hidden bg-muted/10 cursor-grab active:cursor-grabbing rounded-lg border shadow-inner"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            sx={{
-                flex: 1, 
-                height: "100%",
-                overflow: "hidden",
-                position: "relative",
-                borderRadius: 2.5, 
-                border: `1px solid ${theme.palette.divider}`,
-                bgcolor: isDark ? "#0F172A" : "#F8FAFC",
-                cursor: isDragging ? "grabbing" : "grab",
-                userSelect: "none"
-            }}
         >
             {/* Floating Controls Overlay (Stats + Nav) */}
-            <Box sx={{
-                position: "absolute",
-                top: 16,
-                right: 16,
-                zIndex: 20,
-                display: "flex",
-                gap: 2,
-                p: 1.25,
-                bgcolor: alpha(isDark ? "#1E293B" : "#FFFFFF", 0.9),
-                backdropFilter: "blur(8px)",
-                borderRadius: 3,
-                border: `1px solid ${theme.palette.divider}`,
-                boxShadow: isDark ? "0 4px 20px rgba(0,0,0,0.4)" : "0 4px 20px rgba(0,0,0,0.08)",
-                alignItems: "center"
-            }}>
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none z-10">
                 {/* Stats */}
-                <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", px: 0.5 }}>
+                <div className="flex bg-background border shadow-sm rounded-lg p-2 pointer-events-auto">
                     {stats && (
                         <>
                             {[
                                 { label: "Objects", value: stats.objects, color: TYPE_COLORS.object },
                                 { label: "Arrays", value: stats.arrays, color: TYPE_COLORS.array },
-                                { label: "Keys", value: stats.totalKeys, color: theme.palette.text.secondary },
+                                { label: "Keys", value: stats.totalKeys, color: "currentColor" },
                                 { label: "Depth", value: stats.depth, color: "#EC4899" }
                             ].map((s, i) => (
-                                <Box key={i} sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 800, color: s.color, opacity: 0.8, textTransform: "uppercase", fontSize: "0.55rem" }}>
-                                        {s.label}
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 900, fontSize: "0.8rem" }}>
-                                        {s.value}
-                                    </Typography>
-                                    {i < 3 && <Box sx={{ ml: 1, width: 3, height: 3, borderRadius: "50%", bgcolor: "divider" }} />}
-                                </Box>
+                                <div key={s.label} className="flex items-center">
+                                    <div className="flex flex-col px-3">
+                                        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                                        <div className="text-sm font-semibold" style={{ color: s.color }}>{s.value}</div>
+                                    </div>
+                                    {i < 3 && <Separator orientation="vertical" className="h-6" />}
+                                </div>
                             ))}
                         </>
                     )}
-                </Box>
-
-                <Divider orientation="vertical" flexItem sx={{ height: 20, my: "auto" }} />
+                </div>
 
                 {/* Nav Buttons */}
-                <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-                    <Tooltip title="Fit to screen"><IconButton size="small" onClick={fit} sx={{ borderRadius: 1.5, width: 28, height: 28 }}><FitScreenIcon sx={{ fontSize: 16 }} /></IconButton></Tooltip>
-                    <Tooltip title="Zoom in"><IconButton size="small" onClick={() => setZoom(z => Math.min(z + 0.15, 3))} sx={{ borderRadius: 1.5, width: 28, height: 28 }}><ZoomInIcon sx={{ fontSize: 16 }} /></IconButton></Tooltip>
-                    <Tooltip title="Zoom out"><IconButton size="small" onClick={() => setZoom(z => Math.max(z - 0.15, 0.2))} sx={{ borderRadius: 1.5, width: 28, height: 28 }}><ZoomOutIcon sx={{ fontSize: 16 }} /></IconButton></Tooltip>
-                </Box>
-            </Box>
-
+                <div className="flex bg-background border shadow-sm rounded-lg p-1 gap-1 pointer-events-auto">
+                    <AnimatedButton variant="ghost" size="icon" className="size-8" icon={Maximize} tooltipText="Fit to screen" onClickAction={fit} />
+                    <AnimatedButton variant="ghost" size="icon" className="size-8" icon={ZoomIn} tooltipText="Zoom in" onClickAction={() => setZoom(z => Math.min(z + 0.15, 3))} />
+                    <AnimatedButton variant="ghost" size="icon" className="size-8" icon={ZoomOut} tooltipText="Zoom out" onClickAction={() => setZoom(z => Math.max(z - 0.15, 0.2))} />
+                </div>
+            </div>
 
             <svg
                 ref={svgRef}
@@ -360,25 +329,28 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                                     <path
                                         d={path}
                                         fill="none"
-                                        stroke={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-                                        strokeWidth={1.5}
+                                        stroke="currentColor"
+                                        className="text-black/30 dark:text-white/40"
+                                        strokeWidth={2}
                                     />
                                     {/* Label on path */}
-                                    <rect 
-                                        x={(e.x1 + e.x2) / 2 - (Math.max(e.label.length, 1) * 4)} 
-                                        y={my - 8} 
-                                        width={Math.max(e.label.length, 1) * 8} 
-                                        height={16} 
-                                        rx={4} 
-                                        fill={isDark ? "#1E293B" : "#F1F5F9"} 
+                                    <rect
+                                        x={(e.x1 + e.x2) / 2 - (Math.max(e.label.length, 1) * 4)}
+                                        y={my - 8}
+                                        width={Math.max(e.label.length, 1) * 8}
+                                        height={16}
+                                        rx={4}
+                                        fill="currentColor"
+                                        className="text-slate-100 dark:text-slate-800"
                                     />
-                                    <text 
-                                        x={(e.x1 + e.x2) / 2} 
+                                    <text
+                                        x={(e.x1 + e.x2) / 2}
                                         y={my + 4}
                                         textAnchor="middle"
                                         fontSize={10}
                                         fontWeight="600"
-                                        fill={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+                                        fill="currentColor"
+                                        className="text-black/80 dark:text-white/80"
                                     >
                                         {e.label}
                                     </text>
@@ -394,7 +366,7 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                             const hHeight = HEADER_H;
                             const bHeight = (node.primitives.length * ROW_H) + (node.primitives.length > 0 ? 12 : 0);
                             const totalH = hHeight + bHeight;
-                            
+
                             return (
                                 <g key={node.id}>
                                     {/* Shadow/Glow */}
@@ -411,16 +383,16 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                                         width={NODE_W} height={totalH}
                                         rx={12} ry={12}
                                         fill={isDark ? "#1E293B" : "#FFFFFF"}
-                                        stroke={isDark ? alpha(color, 0.4) : alpha(color, 0.2)}
+                                        stroke={isDark ? color : color}
                                         strokeWidth={1.5}
                                     />
-                                    
+
                                     {/* Header */}
-                                    <path 
-                                        d={`M${x},${y+12} a12,12 0 0 1 12,-12 h${NODE_W-24} a12,12 0 0 1 12,12 v${HEADER_H-12} h-${NODE_W} z`} 
-                                        fill={color} 
+                                    <path
+                                        d={`M${x},${y + 12} a12,12 0 0 1 12,-12 h${NODE_W - 24} a12,12 0 0 1 12,12 v${HEADER_H - 12} h-${NODE_W} z`}
+                                        fill={color}
                                     />
-                                    
+
                                     {/* Type Icon & Label */}
                                     <text x={x + 12} y={y + 22} fontSize={12} fontWeight={800} fill="#FFFFFF">
                                         {node.type === "array" ? "ARR" : "OBJ"}
@@ -428,15 +400,15 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                                     <text x={x + 45} y={y + 22} fontSize={13} fontWeight={700} fill="#FFFFFF" style={{ userSelect: "none" }}>
                                         {node.key === "root" ? "root" : node.key} ({node.children.length + node.primitives.length})
                                     </text>
-                                    
+
                                     {/* Copy button */}
-                                    <g 
-                                        transform={`translate(${x + NODE_W - 32}, ${y + 8})`} 
+                                    <g
+                                        transform={`translate(${x + NODE_W - 32}, ${y + 8})`}
                                         style={{ cursor: "pointer" }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            const json = JSON.stringify(node.value, null, 2);
-                                            navigator.clipboard.writeText(json);
+                                            const jsonStr = JSON.stringify(node.value, null, 2);
+                                            navigator.clipboard.writeText(jsonStr);
                                             setCopiedNodeId(node.id);
                                             setTimeout(() => setCopiedNodeId(null), 2000);
                                         }}
@@ -458,7 +430,7 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                                                     y={pi * ROW_H + 10}
                                                     fontSize={11}
                                                 >
-                                                    <tspan fill="#EC4899" fontWeight="800">{p.key} : </tspan>
+                                                    <tspan fill={isDark ? "#F472B6" : "#EC4899"} fontWeight="800">{p.key} : </tspan>
                                                     <tspan fill={TYPE_COLORS[p.type]}>{String(p.value)}</tspan>
                                                 </text>
                                             ))}
@@ -470,14 +442,12 @@ function TreeView({ tree, stats, json }: { tree: TreeNode, stats: JsonStats | nu
                     </g>
                 </g>
             </svg>
-        </Box>
+        </div>
     );
 }
 
 // == Summary Table ============================================================
 function SummaryView({ stats, json }: { stats: JsonStats; json: unknown }) {
-    const theme = useTheme();
-
     const rows = [
         { label: "Total Keys", value: stats.totalKeys, color: "#4F46E5" },
         { label: "Max Depth", value: stats.depth, color: "#0284C7" },
@@ -498,98 +468,60 @@ function SummaryView({ stats, json }: { stats: JsonStats; json: unknown }) {
     }
 
     return (
-        <Box sx={{ height: "100%", overflow: "auto", p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-            <Box>
-                <Typography variant="caption" fontWeight={800} color="text.secondary"
-                    sx={{ textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5, display: "block" }}>
-                    Structure Analysis
-                </Typography>
-                <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 1.5 }}>
+        <div className="flex flex-col gap-6 p-4">
+            <div>
+                <div className="text-lg font-semibold mb-4">Structure Analysis</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {rows.map(r => (
-                        <Box key={r.label} sx={{
-                            p: 1.5, borderRadius: 2,
-                            bgcolor: alpha(r.color, 0.07),
-                            border: `1px solid ${alpha(r.color, 0.2)}`,
-                            textAlign: "center",
-                        }}>
-                            <Typography variant="h5" fontWeight={900} sx={{ color: r.color, lineHeight: 1 }}>
-                                {r.value}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: "block" }}>
-                                {r.label}
-                            </Typography>
-                        </Box>
+                        <div key={r.label} className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+                            <div className="text-3xl font-bold mb-1" style={{ color: r.color }}>{r.value}</div>
+                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{r.label}</div>
+                        </div>
                     ))}
-                </Box>
-            </Box>
+                </div>
+            </div>
 
             {topEntries.length > 0 && (
-                <Box>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary"
-                        sx={{ textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5, display: "block" }}>
-                        Top-Level Schema
-                    </Typography>
-                    <Box sx={{
-                        borderRadius: 2, overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
-                        <Box sx={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr auto auto",
-                            gap: 0,
-                        }}>
-                            {["Key", "Type", "Child Count"].map(h => (
-                                <Box key={h} sx={{
-                                    p: 1.25, bgcolor: alpha(theme.palette.text.primary, 0.04),
-                                    borderBottom: `1px solid ${theme.palette.divider}`,
-                                }}>
-                                    <Typography variant="caption" fontWeight={800} color="text.secondary"
-                                        sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: "0.06em" }}>
-                                        {h}
-                                    </Typography>
-                                </Box>
-                            ))}
-                            {topEntries.map((e, i) => (
-                                <Box key={i} sx={{ display: "contents" }}>
-                                    <Box sx={{ p: 1.25, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", alignItems: "center" }}>
-                                        <Typography sx={{ fontSize: "0.8rem", fontWeight: 700, color: "#EC4899" }}>
-                                            {e.key}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ p: 1.25, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", alignItems: "center" }}>
-                                        <Chip label={e.type} size="small" sx={{
-                                            height: 20, fontSize: "0.65rem", fontWeight: 700,
-                                            bgcolor: alpha(TYPE_COLORS[e.type], 0.12),
-                                            color: TYPE_COLORS[e.type],
-                                            border: `1px solid ${alpha(TYPE_COLORS[e.type], 0.25)}`,
-                                        }} />
-                                    </Box>
-                                    <Box sx={{ p: 1.25, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                        <Typography sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
-                                            {e.children ?? "—"}
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Box>
-                </Box>
+                <div>
+                    <div className="text-lg font-semibold mb-4">Top-Level Schema</div>
+                    <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                                <tr>
+                                    <th className="px-6 py-3 font-semibold">Key</th>
+                                    <th className="px-6 py-3 font-semibold">Type</th>
+                                    <th className="px-6 py-3 font-semibold">Child Count</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                                {topEntries.map((e, i) => (
+                                    <tr key={i} className="hover:bg-muted/30 transition-colors">
+                                        <td className="px-6 py-4 font-mono text-primary font-medium">{e.key}</td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md" style={{ backgroundColor: `${TYPE_COLORS[e.type]}15`, color: TYPE_COLORS[e.type] }}>
+                                                {e.type}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-muted-foreground">{e.children ?? "—"}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             )}
-        </Box>
+        </div>
     );
 }
 
 // == Main Page ================================================================
 export default function JsonRelationshipVisualizerPage() {
-    const theme = useTheme();
-
     const [input, setInput] = useState<string>("");
     const [parsedJson, setParsedJson] = useState<object | null>(null);
     const [tree, setTree] = useState<TreeNode | null>(null);
     const [stats, setStats] = useState<JsonStats | null>(null);
     const [parseError, setParseError] = useState<string | null>(null);
     const [view, setView] = useState<"graph" | "summary">("graph");
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const parse = useCallback((text: string) => {
         if (!text.trim()) { setParsedJson(null); setTree(null); setStats(null); setParseError(null); return; }
@@ -619,143 +551,99 @@ export default function JsonRelationshipVisualizerPage() {
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON Relationship Visualizer"
                 toolColor={getToolColor("JSON Relationship Visualizer")}
                 description="Explore JSON structures as an interactive graph and understand their relationships."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap",
-                p: 1.25, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                <ToggleButtonGroup
-                    value={view}
-                    exclusive
-                    onChange={(_, v) => { if (v) setView(v); }}
-                    size="small"
-                >
-                    <ToggleButton value="graph" sx={{ borderRadius: "8px !important", px: 1.5, gap: 0.75, fontSize: "0.78rem" }}>
-                        <TreeIcon sx={{ fontSize: 16 }} /> Graph
-                    </ToggleButton>
-                    <ToggleButton value="summary" sx={{ borderRadius: "8px !important", px: 1.5, gap: 0.75, fontSize: "0.78rem" }}>
-                        <TableIcon sx={{ fontSize: 16 }} /> Summary
-                    </ToggleButton>
-                </ToggleButtonGroup>
+            <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
+                <div className="flex rounded-md border shadow-sm overflow-hidden">
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-2 border-r transition-colors ${view === 'graph' ? 'bg-muted' : 'bg-background hover:bg-muted/50'}`} onClick={() => setView('graph')}>
+                        <Network className="size-3.5" /> Graph
+                    </button>
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-2 transition-colors ${view === 'summary' ? 'bg-muted' : 'bg-background hover:bg-muted/50'}`} onClick={() => setView('summary')}>
+                        <Table className="size-3.5" /> Summary
+                    </button>
+                </div>
+            </div>
 
-                <Box sx={{ flexGrow: 1 }} />
+            {parseError && (
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>Invalid JSON: {parseError}</AlertDescription>
+                </Alert>
+            )}
 
-                <Button variant="outlined" onClick={() => setInput(SAMPLE_JSON_RELATIONSHIP_VISUALIZER)} size="small" sx={{ borderRadius: 2 }}>
-                    Sample
-                </Button>
-                {parsedJson && (
-                    <>
-                        <Tooltip title="Download JSON">
-                            <IconButton onClick={handleDownload} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center" }} />
-                    </>
-                )}
-                {input && (
-                    <Tooltip title="Clear">
-                        <IconButton onClick={() => { setInput(""); }} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                            <DeleteOutline sx={{ fontSize: 17 }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Box>
+            <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-[500px]">
+                <div className="flex-[35] min-w-[260px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm h-full">
+                    <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            JSON Input
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => setInput(SAMPLE_JSON_RELATIONSHIP_VISUALIZER)} />
+                            {input && (
+                                <>
+                                    <Separator orientation="vertical" className="h-4 mx-1" />
+                                    {parsedJson && (
 
-            {parseError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>Invalid JSON: {parseError}</Alert>}
-
-            {/* Split pane */}
-            <Box sx={{
-                flexGrow: 1, display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2, minHeight: 0, flex: 1,
-            }}>
-                {/* JSON Input */}
-                <Box sx={{ flex: "35 1 0", minWidth: 260, minHeight: 250, display: "flex", flexDirection: "column" }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary"
-                        sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        JSON Input
-                    </Typography>
-                    <Box sx={{
-                        flexGrow: 1, minHeight: 0,
-                        borderRadius: 2.5, overflow: "hidden",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}>
+                                        <CopyButton textToCopy={input} tooltipText="Copy Input" />
+                                    )}
+                                    {parsedJson && (
+                                        <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download JSON" onClickAction={handleDownload} />
+                                    )}
+                                    <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Input" onClickAction={() => setInput("")} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1">
                         <Editor
                             language="json"
                             value={input}
                             onChange={(v) => setInput(v || "")}
                             placeholder="Paste your JSON here..."
                         />
-                    </Box>
-                </Box>
+                    </div>
+                </div>
 
-                {/* Visualization / Summary View */}
-                <Box sx={{ flex: "65 1 0", display: "flex", flexDirection: "column", minWidth: 0 }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary"
-                        sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.1em", ml: 0.5 }}>
-                        {view === "graph" ? "Relationship Graph" : "Structure Summary"}
-                    </Typography>
-                    <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                <div className="flex-[65] min-w-[300px] flex flex-col border border-border rounded-xl overflow-hidden shadow-sm h-full bg-card">
+                    <div className="flex justify-between items-center border-b border-border/50 bg-muted/10 px-3 py-2">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            {view === "graph" ? "Relationship Graph" : "Structure Summary"}
+                        </div>
+                        {view === "graph" && tree && (
+                            <div className="flex gap-2 text-[10px] items-center -mt-1 font-mono uppercase tracking-widest">
+                                <span className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ backgroundColor: TYPE_COLORS.object }} /> OBJ</span>
+                                <span className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ backgroundColor: TYPE_COLORS.array }} /> ARR</span>
+                                <span className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ backgroundColor: TYPE_COLORS.string }} /> STR</span>
+                                <span className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ backgroundColor: TYPE_COLORS.number }} /> NUM</span>
+                                <span className="flex items-center gap-1"><div className="size-2 rounded-full" style={{ backgroundColor: TYPE_COLORS.boolean }} /> BOOL</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                            {parsedJson && (
+                                <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => setInput("")} />
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-auto bg-background/50 relative">
                         {!parsedJson ? (
-                            <Box sx={{
-                                height: "100%", display: "flex", flexDirection: "column",
-                                alignItems: "center", justifyContent: "center", gap: 1.5,
-                                borderRadius: 2.5, border: `1px solid ${theme.palette.divider}`,
-                                bgcolor: "background.paper",
-                            }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem", textAlign: "center" }}>
-                                    Paste valid JSON to visualize its structure and relationships.
-                                </Typography>
-                            </Box>
+                            <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                                Paste valid JSON to visualize its structure and relationships.
+                            </div>
                         ) : view === "graph" && tree ? (
                             <TreeView tree={tree} stats={stats} json={parsedJson} />
                         ) : view === "summary" && stats ? (
-                            <Box sx={{
-                                height: "100%", borderRadius: 2.5, overflow: "auto",
-                                border: `1px solid ${theme.palette.divider}`,
-                                bgcolor: "background.paper",
-                            }}>
+                            <div className="h-full overflow-auto">
                                 <SummaryView stats={stats} json={parsedJson} />
-                            </Box>
+                            </div>
                         ) : null}
-                    </Box>
-                </Box>
-            </Box>
-
-            {/* Legend */}
-            <Box sx={{
-                mt: 2, p: 1.75, borderRadius: 2.5,
-                bgcolor: "background.paper",
-                border: `1px solid ${theme.palette.divider}`,
-                display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center",
-            }}>
-                <Typography variant="caption" fontWeight={800} color="text.secondary"
-                    sx={{ textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Node Types
-                </Typography>
-                {(Object.entries(TYPE_COLORS) as [NodeType, string][]).map(([type, color]) => (
-                    <Box key={type} sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                        <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: color }} />
-                        <Typography variant="caption" color="text.secondary">{type}</Typography>
-                    </Box>
-                ))}
-            </Box>
-
-            <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)}
-                message="Copied!" anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
-        </Box>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
-

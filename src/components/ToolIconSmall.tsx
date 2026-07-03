@@ -1,9 +1,8 @@
 "use client";
 
-import React, { memo } from "react";
-import { SvgIcon } from "@mui/material";
+import React from "react";
 import { getToolColor } from "@/lib/toolColors";
-import { getToolIconPath } from "@/lib/toolIcons";
+import { getToolIcon } from "@/lib/toolIcons";
 
 interface ToolIconSmallProps {
   toolName: string;
@@ -12,25 +11,18 @@ interface ToolIconSmallProps {
 
 /**
  * Small icon component for tool cards on home page
- * Memoized to prevent unnecessary re-renders
  */
-export const ToolIconSmall = memo(function ToolIconSmall({ toolName, size = 20 }: ToolIconSmallProps) {
-  const iconPath = getToolIconPath(toolName);
-  if (!iconPath) {
+export function ToolIconSmall({ toolName, size = 20 }: ToolIconSmallProps) {
+  const IconComponent = getToolIcon(toolName);
+  if (!IconComponent) {
     return null;
   }
 
   return (
-    <SvgIcon
-      viewBox="0 0 24 24"
-      sx={{
-        width: size,
-        height: size,
-        flexShrink: 0,
-        color: getToolColor(toolName),
-      }}
-    >
-      <g dangerouslySetInnerHTML={{ __html: iconPath }} />
-    </SvgIcon>
+    <IconComponent
+      size={size}
+      className="shrink-0"
+      style={{ color: getToolColor(toolName) }}
+    />
   );
-});
+}

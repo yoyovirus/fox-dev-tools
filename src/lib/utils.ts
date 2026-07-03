@@ -1,7 +1,9 @@
-/**
- * Utility functions
- * Common helper functions used across the application
- */
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 /**
  * Format file size to human-readable string

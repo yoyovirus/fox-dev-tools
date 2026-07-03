@@ -1,69 +1,46 @@
-/*
-  Website: FoX Dev Tools - Tools for Developers
-  Author: Rahul Khedekar
-  Copyright © 2026 FoX Dev Tools. All rights reserved.
-
-  This code is proprietary and may not be copied, modified,
-  or distributed without permission.
-*/
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { CopyButton } from "@/components/CopyButton";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Copy, Trash2, ArrowRightLeft, AlertCircle, FileText, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { JsonDiffEditor } from "@/components/JsonDiffEditor";
-import { Box, Typography, Button, Stack, Tooltip, IconButton, alpha, useTheme, Divider, Snackbar, Alert } from "@mui/material";
-import { SwapHoriz as SwapHorizIcon, Code as CodeIcon, DeleteOutline, ContentCopy, Download as DownloadIcon } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
-
-function usePageSnackbar() {
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const showSnackbar = (msg: string) => { setSnackbarMessage(msg); setSnackbarOpen(true); };
-    const handleCopy = async (text: string) => {
-        try { await navigator.clipboard.writeText(text); showSnackbar("Copied to clipboard!"); } catch {}
-    };
-    const handleDownload = (content: string, filename: string) => {
-        if (!content) return;
-        const blob = new Blob([content], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = filename; document.body.appendChild(a); a.click();
-        document.body.removeChild(a); URL.revokeObjectURL(url);
-    };
-    return { snackbarOpen, snackbarMessage, setSnackbarOpen, handleCopy, handleDownload };
-}
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 export default function DiffPage() {
     const [original, setOriginal] = useState<string>("");
     const [modified, setModified] = useState<string>("");
     const [origError, setOrigError] = useState<string | null>(null);
     const [modError, setModError] = useState<string | null>(null);
-    const { snackbarOpen, snackbarMessage, setSnackbarOpen, handleCopy, handleDownload } = usePageSnackbar();
-    const theme = useTheme();
 
     useEffect(() => {
         if (!original.trim()) {
             setOrigError(null);
-            return;
-        }
-        try {
-            JSON.parse(original);
-            setOrigError(null);
-        } catch (e: any) {
-            setOrigError(e.message);
+        } else {
+            try {
+                JSON.parse(original);
+                setOrigError(null);
+            } catch (e: any) {
+                setOrigError(e.message);
+            }
         }
     }, [original]);
 
     useEffect(() => {
         if (!modified.trim()) {
             setModError(null);
-            return;
-        }
-        try {
-            JSON.parse(modified);
-            setModError(null);
-        } catch (e: any) {
-            setModError(e.message);
+        } else {
+            try {
+                JSON.parse(modified);
+                setModError(null);
+            } catch (e: any) {
+                setModError(e.message);
+            }
         }
     }, [modified]);
 
@@ -73,129 +50,109 @@ export default function DiffPage() {
         setModified(temp);
     };
 
-    const loadSample = () => {
-        setOriginal("{\n  \"name\": \"John Doe\",\n  \"age\": 30,\n  \"city\": \"New York\",\n  \"active\": false\n}");
-        setModified("{\n  \"name\": \"John Doe\",\n  \"age\": 31,\n  \"city\": \"London\",\n  \"active\": true,\n  \"role\": \"admin\"\n}");
-    };
-
     const clearEditors = () => {
         setOriginal("");
         setModified("");
+        setOrigError(null);
+        setModError(null);
+    };
+
+    const loadSample = () => {
+        setOriginal(JSON.stringify({
+            "name": "John Doe",
+            "age": 30,
+            "city": "New York",
+            "skills": ["React", "TypeScript", "Node.js"]
+        }, null, 2));
+        setModified(JSON.stringify({
+            "name": "John Doe",
+            "age": 31,
+            "city": "San Francisco",
+            "skills": ["React", "TypeScript", "Next.js"]
+        }, null, 2));
+    };
+
+    const handleCopy = async (text: string) => {
+        try { await navigator.clipboard.writeText(text); } catch { }
     };
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Page Header */}
+        <div className="h-full flex flex-col gap-4 min-h-[600px]">
             <ToolHeader
                 toolName="JSON Diff"
                 toolColor={getToolColor("JSON Diff")}
                 description="Compare two JSON objects and highlight their differences."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                <Tooltip title="Swap original ↔ modified">
-                    <Button
-                        variant="outlined"
-                        onClick={swap}
-                        size="small"
-                        startIcon={<SwapHorizIcon sx={{ fontSize: 16 }} />}
-                        sx={{ borderRadius: 2 }}
-                    >
-                        Swap
-                    </Button>
-                </Tooltip>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                    variant="outlined"
-                    onClick={loadSample}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Sample
-                </Button>
-                {modified && (
-                    <>
-                        <Tooltip title="Copy JSON">
-                            <IconButton onClick={() => handleCopy(modified)} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopy sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Download JSON">
-                            <IconButton onClick={() => handleDownload(modified, "json-diff.json")} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center", ml: 1.5 }} />
-                    </>
-                )}
-                {(original || modified) && (
-                    <Tooltip title="Clear">
-                        <IconButton onClick={clearEditors} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                            <DeleteOutline sx={{ fontSize: 17 }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Box>
 
-            {/* Error Messages */}
-            {(origError || modError) && (
-                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                    {origError && (
-                        <Alert severity="error" onClose={() => setOrigError(null)} sx={{ flex: 1, borderRadius: 2 }}>
-                            Original JSON Error: {origError}
+
+            {Boolean(origError || modError) && (
+                <div className="flex flex-col md:flex-row gap-4">
+                    {Boolean(origError) && (
+                        <Alert variant="destructive" className="flex-1">
+                            <AlertCircle className="size-4" />
+                            <AlertDescription>Original JSON Error: {origError}</AlertDescription>
                         </Alert>
                     )}
-                    {modError && (
-                        <Alert severity="error" onClose={() => setModError(null)} sx={{ flex: 1, borderRadius: 2 }}>
-                            Modified JSON Error: {modError}
+                    {Boolean(modError) && (
+                        <Alert variant="destructive" className="flex-1">
+                            <AlertCircle className="size-4" />
+                            <AlertDescription>Modified JSON Error: {modError}</AlertDescription>
                         </Alert>
                     )}
-                </Box>
+                </div>
             )}
 
-            {/* Diff Editor */}
-            <Box sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: "column",
-                minHeight: 0,
-                flex: 1,
-            }}>
-                <Box sx={{ display: { xs: "none", md: "flex" }, mb: 1, gap: 0 }}>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.1em", width: "50%", pl: 0.5 }}>
-                        Original JSON
-                    </Typography>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.1em", width: "50%", pl: 2 }}>
-                        Modified JSON
-                    </Typography>
-                </Box>
-                <Box sx={{
-                    flexGrow: 1,
-                    minHeight: 0,
-                    borderRadius: 2.5,
-                    overflow: "hidden",
-                    border: `1px solid ${theme.palette.divider}`,
-                    bgcolor: "background.paper",
-                }}>
+            <div className="flex-1 min-h-0 flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                        <span>Original</span>
+                        <ArrowRightLeft className="size-3" />
+                        <span>Modified</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={loadSample} />
+                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={ArrowRightLeft} label="Swap" onClickAction={swap} />
+                        {(original || modified) && (
+                            <>
+                                <Separator orientation="vertical" className="h-4 mx-1" />
+                                {original && (
+                                    <>
+                                        <CopyButton textToCopy={original} tooltipText="Original" size="sm" className="h-7 px-2 text-xs gap-1.5" />
+                                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={Download} tooltipText="Download Original JSON" onClickAction={() => {
+                                                    const blob = new Blob([original], { type: "application/json" });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement("a");
+                                                    a.href = url; a.download = "original.json"; document.body.appendChild(a); a.click();
+                                                    document.body.removeChild(a); URL.revokeObjectURL(url);
+                                                }} />
+                                    </>
+                                )}
+                                {modified && (
+                                    <>
+                                        <CopyButton textToCopy={modified} tooltipText="Modified" size="sm" className="h-7 px-2 text-xs gap-1.5" />
+                                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={Download} tooltipText="Download Modified JSON" onClickAction={() => {
+                                                    const blob = new Blob([modified], { type: "application/json" });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement("a");
+                                                    a.href = url; a.download = "modified.json"; document.body.appendChild(a); a.click();
+                                                    document.body.removeChild(a); URL.revokeObjectURL(url);
+                                                }} />
+                                    </>
+                                )}
+                                <Separator orientation="vertical" className="h-4 mx-1" />
+                                <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={clearEditors} />
+                            </>
+                        )}
+                    </div>
+                </div>
+                <div className="flex-1 min-h-0 relative">
                     <JsonDiffEditor
                         original={original}
                         modified={modified}
-                        originalPlaceholder="Paste original JSON here..."
-                        modifiedPlaceholder="Paste modified JSON here..."
-                        onChangeOriginal={setOriginal}
-                        onChangeModified={setModified}
                     />
-                </Box>
-            </Box>
-
-            {snackbarOpen && <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)} message={snackbarMessage} anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />}
-        </Box>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 
 interface UseToolPageOptions {
     /** Whether to validate JSON on input changes */
@@ -22,13 +23,6 @@ interface UseToolPageReturn<TInput = string, TOutput = string> {
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
 
-    /* Snackbar */
-    snackbarOpen: boolean;
-    snackbarMessage: string;
-    showSnackbar: (message: string) => void;
-    hideSnackbar: () => void;
-    SnackbarProps: { open: boolean; message: string; autoHideDuration: number; onClose: () => void };
-
     /* Actions */
     handleCopy: (text?: string) => Promise<void>;
     handleDownload: (content?: string, filename?: string) => void;
@@ -38,7 +32,7 @@ interface UseToolPageReturn<TInput = string, TOutput = string> {
 
 /**
  * Centralized hook for common tool page patterns.
- * Provides input/output state, snackbar, copy, download, clear, and optional JSON validation.
+ * Provides input/output state, sonner toast notifications, copy, download, clear, and optional JSON validation.
  */
 export function useToolPage<TInput = string, TOutput = string>(
     options: UseToolPageOptions = {}
@@ -52,8 +46,6 @@ export function useToolPage<TInput = string, TOutput = string>(
     const [input, setInput] = useState<TInput>("" as unknown as TInput);
     const [output, setOutput] = useState<TOutput>("" as unknown as TOutput);
     const [error, setError] = useState<string | null>(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     /* Optional JSON validation */
     useEffect(() => {
@@ -71,25 +63,16 @@ export function useToolPage<TInput = string, TOutput = string>(
         }
     }, [input, validateJson]);
 
-    const showSnackbar = useCallback((message: string) => {
-        setSnackbarMessage(message);
-        setSnackbarOpen(true);
-    }, []);
-
-    const hideSnackbar = useCallback(() => {
-        setSnackbarOpen(false);
-    }, []);
-
     const handleCopy = useCallback(async (text?: string) => {
         const content = text ?? (output as unknown as string) ?? (input as unknown as string);
         if (!content) return;
         try {
             await navigator.clipboard.writeText(content);
-            showSnackbar("Copied to clipboard!");
+            toast.success("Copied to clipboard!");
         } catch {
-            showSnackbar("Failed to copy.");
+            toast.error("Failed to copy.");
         }
-    }, [input, output, showSnackbar]);
+    }, [input, output]);
 
     const handleDownload = useCallback((content?: string, filename?: string) => {
         const text = content ?? (output as unknown as string) ?? (input as unknown as string);
@@ -104,11 +87,11 @@ export function useToolPage<TInput = string, TOutput = string>(
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            showSnackbar("File downloaded!");
+            toast.success("File downloaded!");
         } catch {
-            showSnackbar("Failed to download.");
+            toast.error("Failed to download.");
         }
-    }, [input, output, downloadType, defaultFilename, showSnackbar]);
+    }, [input, output, downloadType, defaultFilename]);
 
     const handleClear = useCallback((extra?: Record<string, any>) => {
         setInput("" as unknown as TInput);
@@ -133,14 +116,6 @@ export function useToolPage<TInput = string, TOutput = string>(
         input, setInput,
         output, setOutput,
         error, setError,
-        snackbarOpen, snackbarMessage,
-        showSnackbar, hideSnackbar,
-        SnackbarProps: {
-            open: snackbarOpen,
-            message: snackbarMessage,
-            autoHideDuration: 2000,
-            onClose: hideSnackbar,
-        },
         handleCopy,
         handleDownload,
         handleClear,

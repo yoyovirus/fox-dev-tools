@@ -1,10 +1,8 @@
 "use client";
 
-import React, { memo } from "react";
-import { alpha, useTheme, Box } from "@mui/material";
-import { SvgIcon } from "@mui/material";
+import React from "react";
 import { getToolColor } from "@/lib/toolColors";
-import { getToolIconPath } from "@/lib/toolIcons";
+import { getToolIcon } from "@/lib/toolIcons";
 
 interface ToolIconProps {
   toolName: string;
@@ -13,65 +11,42 @@ interface ToolIconProps {
 }
 
 /**
- * Custom SVG icon component for tools
- * Memoized to prevent unnecessary re-renders
+ * Custom Lucide icon component for tools
  */
-export const ToolIcon = memo(function ToolIcon({ toolName, isActive = false, size = 32 }: ToolIconProps) {
-  const theme = useTheme();
+export function ToolIcon({ toolName, isActive = false, size = 32 }: ToolIconProps) {
   const toolColor = getToolColor(toolName);
-  const iconPath = getToolIconPath(toolName);
+  const IconComponent = getToolIcon(toolName);
 
-  if (!iconPath) {
+  if (!IconComponent) {
     return (
-      <Box
-        sx={{
+      <div
+        className="rounded-md flex items-center justify-center text-[0.7rem] font-bold shrink-0"
+        style={{
           width: size,
           height: size,
-          borderRadius: 1,
-          backgroundColor: alpha(theme.palette.text.secondary, 0.08),
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "0.7rem",
-          fontWeight: 700,
-          color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
-          flexShrink: 0,
+          backgroundColor: "var(--muted)",
+          color: isActive ? "var(--primary)" : "var(--muted-foreground)",
         }}
       >
         ?
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Box
-      sx={{
+    <div
+      className="rounded-md flex items-center justify-center shrink-0 overflow-hidden transition-colors duration-200"
+      style={{
         width: size,
         height: size,
-        borderRadius: 1,
-        backgroundColor: isActive
-          ? alpha(toolColor, 0.15)
-          : alpha(toolColor, 0.08),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        overflow: "hidden",
-        transition: "background-color 0.2s ease",
+        backgroundColor: isActive ? `${toolColor}25` : `${toolColor}15`,
       }}
     >
-      <SvgIcon
-        viewBox="0 0 24 24"
-        sx={{
-          width: size - 6,
-          height: size - 6,
-          flexShrink: 0,
-          color: toolColor,
-        }}
-      >
-        <g dangerouslySetInnerHTML={{ __html: iconPath }} />
-      </SvgIcon>
-    </Box>
+      <IconComponent
+        className="shrink-0"
+        size={size - 6}
+        style={{ color: toolColor }}
+      />
+    </div>
   );
-});
-
+}

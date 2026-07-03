@@ -1,9 +1,8 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect } from "react";
 import { useThemeContext } from "@/components/AppThemeProvider";
-import { Box, Typography, CircularProgress } from "@mui/material";
 
 interface EditorProps {
     value: string;
@@ -19,23 +18,16 @@ const MonacoEditor = dynamic(
     () => import('@monaco-editor/react'),
     {
         loading: () => (
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                gap: 2,
-            }}>
-                <CircularProgress size={24} />
-                <Typography variant="body2" color="text.secondary">Loading editor...</Typography>
-            </Box>
+            <div className="flex items-center justify-center h-full gap-2">
+                <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-foreground rounded-full animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading editor...</span>
+            </div>
         ),
         ssr: false,
     }
 );
 
-// Memoized to prevent unnecessary re-renders
-export const Editor = memo(function Editor({ value, onChange, language = "json", readOnly = false, placeholder, onMount }: EditorProps) {
+export function Editor({ value, onChange, language = "json", readOnly = false, placeholder, onMount }: EditorProps) {
     const [mounted, setMounted] = useState(false);
     const [cursorPos, setCursorPos] = useState({ line: 1, column: 1, position: 0 });
     const { mode } = useThemeContext();
@@ -66,15 +58,15 @@ export const Editor = memo(function Editor({ value, onChange, language = "json",
     }, []);
 
     if (!mounted) {
-        return <Box sx={{ width: "100%", height: "100%", bgcolor: "action.hover", borderRadius: 2 }} />;
+        return <div className="w-full h-full bg-muted/50 rounded-lg" />;
     }
 
     return (
-        <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+        <div className="w-full h-full relative">
             {placeholder && !value && (
-                <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", pointerEvents: "none", zIndex: 10, color: "text.disabled", fontSize: 14, textAlign: "center" }}>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-muted-foreground/50 text-sm text-center">
                     {placeholder}
-                </Box>
+                </div>
             )}
             <MonacoEditor
                 height="100%"
@@ -97,33 +89,22 @@ export const Editor = memo(function Editor({ value, onChange, language = "json",
                     automaticLayout: true,
                     scrollBeyondLastColumn: 0,
                 }}
-                loading={<Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "text.secondary" }}>Loading editor...</Box>}
+                loading={
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        Loading editor...
+                    </div>
+                }
                 onMount={handleEditorDidMount}
             />
             {value.length > 0 && (
-                <Box sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 18,
-                    bgcolor: "background.paper",
-                    px: 1.5,
-                    py: 0.5,
-                    borderTopLeftRadius: 8,
-                    borderLeft: 1,
-                    borderTop: 1,
-                    borderColor: "divider",
-                    display: "flex",
-                    gap: 1.5,
-                    pointerEvents: "none",
-                    zIndex: 10,
-                }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>length: {charCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>lines: {lineCount}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Ln: {cursorPos.line}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Col: {cursorPos.column}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: "0.68rem", fontWeight: 700 }}>Pos: {cursorPos.position}</Typography>
-                </Box>
+                <div className="status-bar">
+                    <span className="status-bar-text">length: {charCount}</span>
+                    <span className="status-bar-text">lines: {lineCount}</span>
+                    <span className="status-bar-text">Ln: {cursorPos.line}</span>
+                    <span className="status-bar-text">Col: {cursorPos.column}</span>
+                    <span className="status-bar-text">Pos: {cursorPos.position}</span>
+                </div>
             )}
-        </Box>
+        </div>
     );
-});
+}

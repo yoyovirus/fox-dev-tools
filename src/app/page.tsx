@@ -1,32 +1,13 @@
-/*
-  Website: FoX Dev Tools - Tools for Developers
-  Author: Rahul Khedekar
-  Copyright © 2026 FoX Dev Tools. All rights reserved.
-
-  This code is proprietary and may not be copied, modified,
-  or distributed without permission.
-*/
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from 'next/image';
-import { motion, LayoutGroup } from "framer-motion";
-import {
-    Box, Typography, Card, CardContent, Chip, useTheme, alpha, IconButton, Collapse, Fade,
-} from "@mui/material";
-import {
-    ArrowForward as ArrowForwardIcon,
-    ChevronLeft as ChevronLeftIcon,
-    DataObject as DataObjectIcon,
-    LockOutlined as LockIcon,
-    StorageOutlined as StorageIcon,
-    SettingsEthernetOutlined as ServerIcon,
-    ShieldOutlined as ShieldIcon,
-    AutoAwesomeOutlined as SparklesIcon,
-} from "@mui/icons-material";
+import Image from "next/image";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ToolIconSmall } from "@/components/ToolIconSmall";
 import { getToolColor } from "@/lib/toolColors";
+import { CodeIcon, LockClosedIcon, LayersIcon, TokensIcon, CheckCircledIcon, MagicWandIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { GravityStarsBackground } from "@/components/GravityStarsBackground";
 
 const CATEGORIES = [
     {
@@ -34,16 +15,16 @@ const CATEGORIES = [
         name: "JSON Tools",
         description: "A suite for formatting, validating, and transforming JSON data.",
         color: "#7C3AED",
-        icon: <DataObjectIcon />,
+        icon: <CodeIcon className="size-5" />,
         tools: [
-            { id: "fmt", name: "JSON Formatter", description: "Beautify and minify JSON with customizable indentation.", href: "/en/json-tools/json-formatter", icon: <ToolIconSmall toolName="JSON Formatter" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Formatter" size={32} />, tags: ["Format", "Minify"] },
-            { id: "val", name: "JSON Validator", description: "Quickly validate your JSON data to pinpoint syntax errors.", href: "/en/json-tools/json-validator", icon: <ToolIconSmall toolName="JSON Validator" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Validator" size={32} />, tags: ["Validate", "Syntax"] },
-            { id: "dif", name: "JSON Diff", description: "Compare two JSON objects and highlight their differences.", href: "/en/json-tools/json-diff", icon: <ToolIconSmall toolName="JSON Diff" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Diff" size={32} />, tags: ["Compare", "Changes"] },
-            { id: "viz", name: "JSON Visualizer", description: "Explore JSON structures in an interactive, collapsible tree view.", href: "/en/json-tools/json-visualizer", icon: <ToolIconSmall toolName="JSON Visualizer" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Visualizer" size={32} />, tags: ["Tree View", "Navigate"] },
-            { id: "gen", name: "JSON Type Generator", description: "Automatically generate TypeScript interfaces and Go structs from any JSON structure.", href: "/en/json-tools/json-type-generator", icon: <ToolIconSmall toolName="JSON Type Generator" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Type Generator" size={32} />, tags: ["TypeScript", "Types"] },
-            { id: "tbl", name: "JSON to Table", description: "Convert JSON arrays into clean, readable tables instantly.", href: "/en/json-tools/json-to-table", icon: <ToolIconSmall toolName="JSON to Table" size={20} />, iconLarge: <ToolIconSmall toolName="JSON to Table" size={32} />, tags: ["Table", "Convert"] },
-            { id: "pth", name: "JSON Path Tester", description: "Test JSONPath expressions against your data and see matched values instantly.", href: "/en/json-tools/json-path-tester", icon: <ToolIconSmall toolName="JSON Path Tester" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Path Tester" size={32} />, tags: ["JSONPath", "Query"] },
-            { id: "rel", name: "JSON Relationship Visualizer", description: "Explore JSON structures as an interactive node graph and understand their relationships.", href: "/en/json-tools/json-relationship-visualizer", icon: <ToolIconSmall toolName="JSON Relationship Visualizer" size={20} />, iconLarge: <ToolIconSmall toolName="JSON Relationship Visualizer" size={32} />, tags: ["Graph", "Structure"] },
+            { id: "fmt", name: "JSON Formatter", description: "Beautify and minify JSON with customizable indentation.", href: "/en/json-tools/json-formatter", iconLarge: <ToolIconSmall toolName="JSON Formatter" size={32} /> },
+            { id: "val", name: "JSON Validator", description: "Quickly validate your JSON data to pinpoint syntax errors.", href: "/en/json-tools/json-validator", iconLarge: <ToolIconSmall toolName="JSON Validator" size={32} /> },
+            { id: "dif", name: "JSON Diff", description: "Compare two JSON objects and highlight their differences.", href: "/en/json-tools/json-diff", iconLarge: <ToolIconSmall toolName="JSON Diff" size={32} /> },
+            { id: "viz", name: "JSON Visualizer", description: "Explore JSON structures in an interactive, collapsible tree view.", href: "/en/json-tools/json-visualizer", iconLarge: <ToolIconSmall toolName="JSON Visualizer" size={32} /> },
+            { id: "gen", name: "JSON Type Generator", description: "Automatically generate TypeScript interfaces and Go structs from any JSON structure.", href: "/en/json-tools/json-type-generator", iconLarge: <ToolIconSmall toolName="JSON Type Generator" size={32} /> },
+            { id: "tbl", name: "JSON to Table", description: "Convert JSON arrays into clean, readable tables instantly.", href: "/en/json-tools/json-to-table", iconLarge: <ToolIconSmall toolName="JSON to Table" size={32} /> },
+            { id: "pth", name: "JSON Path Tester", description: "Test JSONPath expressions against your data and see matched values instantly.", href: "/en/json-tools/json-path-tester", iconLarge: <ToolIconSmall toolName="JSON Path Tester" size={32} /> },
+            { id: "rel", name: "JSON Relationship Visualizer", description: "Explore JSON structures as an interactive node graph and understand their relationships.", href: "/en/json-tools/json-relationship-visualizer", iconLarge: <ToolIconSmall toolName="JSON Relationship Visualizer" size={32} /> },
         ]
     },
     {
@@ -51,11 +32,11 @@ const CATEGORIES = [
         name: "Base64 Tools",
         description: "Encode, decode, and convert between Base64 and images.",
         color: "#0EA5E9",
-        icon: <SparklesIcon />,
+        icon: <MagicWandIcon className="size-5" />,
         tools: [
-            { id: "enc", name: "Base64 Encoder / Decoder", description: "Encode text to Base64 or decode it back in real-time.", href: "/en/base64-tools/base64-encoder-decoder", icon: <ToolIconSmall toolName="Base64 Encoder / Decoder" size={20} />, iconLarge: <ToolIconSmall toolName="Base64 Encoder / Decoder" size={32} />, tags: ["Encode", "Decode"] },
-            { id: "i2b", name: "Image to Base64", description: "Convert images to Base64 strings instantly.", href: "/en/base64-tools/image-to-base64", icon: <ToolIconSmall toolName="Image to Base64" size={20} />, iconLarge: <ToolIconSmall toolName="Image to Base64" size={32} />, tags: ["Image", "Convert"] },
-            { id: "b2i", name: "Base64 to Image", description: "Decode Base64 strings back into images.", href: "/en/base64-tools/base64-to-image", icon: <ToolIconSmall toolName="Base64 to Image" size={20} />, iconLarge: <ToolIconSmall toolName="Base64 to Image" size={32} />, tags: ["Base64", "Image"] },
+            { id: "enc", name: "Base64 Encoder / Decoder", description: "Encode text to Base64 or decode it back in real-time.", href: "/en/base64-tools/base64-encoder-decoder", iconLarge: <ToolIconSmall toolName="Base64 Encoder / Decoder" size={32} /> },
+            { id: "i2b", name: "Image to Base64", description: "Convert images to Base64 strings instantly.", href: "/en/base64-tools/image-to-base64", iconLarge: <ToolIconSmall toolName="Image to Base64" size={32} /> },
+            { id: "b2i", name: "Base64 to Image", description: "Decode Base64 strings back into images.", href: "/en/base64-tools/base64-to-image", iconLarge: <ToolIconSmall toolName="Base64 to Image" size={32} /> },
         ]
     },
     {
@@ -63,433 +44,104 @@ const CATEGORIES = [
         name: "Text Tools",
         description: "A comprehensive suite for text manipulation, comparison, and generation.",
         color: "#14B8A6",
-        icon: <SparklesIcon />,
+        icon: <MagicWandIcon className="size-5" />,
         tools: [
-            { id: "cmp", name: "Text Compare", description: "Compare two texts side by side and identify differences.", href: "/en/text-tools/text-compare", icon: <ToolIconSmall toolName="Text Compare" size={20} />, iconLarge: <ToolIconSmall toolName="Text Compare" size={32} />, tags: ["Compare", "Diff"] },
-            { id: "case", name: "Case Converter", description: "Convert text between uppercase, lowercase, title case, and more.", href: "/en/text-tools/case-converter", icon: <ToolIconSmall toolName="Case Converter" size={20} />, iconLarge: <ToolIconSmall toolName="Case Converter" size={32} />, tags: ["Convert", "Case"] },
-            { id: "line", name: "Line Tools", description: "Sort, reverse, shuffle, and manipulate text lines.", href: "/en/text-tools/line-tools", icon: <ToolIconSmall toolName="Line Tools" size={20} />, iconLarge: <ToolIconSmall toolName="Line Tools" size={32} />, tags: ["Lines", "Sort"] },
-            { id: "diff", name: "Text Diff", description: "Find differences between two texts with highlighted changes.", href: "/en/text-tools/text-diff", icon: <ToolIconSmall toolName="Text Diff" size={20} />, iconLarge: <ToolIconSmall toolName="Text Diff" size={32} />, tags: ["Diff", "Compare"] },
-            { id: "find", name: "Find & Replace", description: "Search and replace text with support for regex.", href: "/en/text-tools/find-replace", icon: <ToolIconSmall toolName="Find & Replace" size={20} />, iconLarge: <ToolIconSmall toolName="Find & Replace" size={32} />, tags: ["Search", "Replace"] },
-            { id: "stat", name: "Text Statistics", description: "Get detailed statistics about your text including word count, characters, and more.", href: "/en/text-tools/text-statistics", icon: <ToolIconSmall toolName="Text Statistics" size={20} />, iconLarge: <ToolIconSmall toolName="Text Statistics" size={32} />, tags: ["Stats", "Analysis"] },
-            { id: "ana", name: "Anagram", description: "Find anagrams and rearrange letters to form new words.", href: "/en/text-tools/anagram", icon: <ToolIconSmall toolName="Anagram" size={20} />, iconLarge: <ToolIconSmall toolName="Anagram" size={32} />, tags: ["Word", "Puzzle"] },
-            { id: "dup", name: "Remove Duplicates", description: "Remove duplicate lines or words from your text.", href: "/en/text-tools/remove-duplicates", icon: <ToolIconSmall toolName="Remove Duplicates" size={20} />, iconLarge: <ToolIconSmall toolName="Remove Duplicates" size={32} />, tags: ["Clean", "Deduplicate"] },
-            { id: "lorem", name: "Lorem Ipsum", description: "Generate placeholder Lorem Ipsum text for your designs.", href: "/en/text-tools/lorem-ipsum", icon: <ToolIconSmall toolName="Lorem Ipsum" size={20} />, iconLarge: <ToolIconSmall toolName="Lorem Ipsum" size={32} />, tags: ["Generate", "Placeholder"] },
-            { id: "blab", name: "Blabber", description: "Generate random placeholder text similar to Lorem Ipsum.", href: "/en/text-tools/blabber", icon: <ToolIconSmall toolName="Blabber" size={20} />, iconLarge: <ToolIconSmall toolName="Blabber" size={32} />, tags: ["Generate", "Random"] },
+            { id: "cmp", name: "Text Compare", description: "Compare two texts side by side and identify differences.", href: "/en/text-tools/text-compare", iconLarge: <ToolIconSmall toolName="Text Compare" size={32} /> },
+            { id: "case", name: "Case Converter", description: "Convert text between uppercase, lowercase, title case, and more.", href: "/en/text-tools/case-converter", iconLarge: <ToolIconSmall toolName="Case Converter" size={32} /> },
+            { id: "line", name: "Line Tools", description: "Sort, reverse, shuffle, and manipulate text lines.", href: "/en/text-tools/line-tools", iconLarge: <ToolIconSmall toolName="Line Tools" size={32} /> },
+            { id: "diff", name: "Text Diff", description: "Find differences between two texts with highlighted changes.", href: "/en/text-tools/text-diff", iconLarge: <ToolIconSmall toolName="Text Diff" size={32} /> },
+            { id: "find", name: "Find & Replace", description: "Search and replace text with support for regex.", href: "/en/text-tools/find-replace", iconLarge: <ToolIconSmall toolName="Find & Replace" size={32} /> },
+            { id: "stat", name: "Text Statistics", description: "Get detailed statistics about your text including word count, characters, and more.", href: "/en/text-tools/text-statistics", iconLarge: <ToolIconSmall toolName="Text Statistics" size={32} /> },
+            { id: "ana", name: "Anagram", description: "Find anagrams and rearrange letters to form new words.", href: "/en/text-tools/anagram", iconLarge: <ToolIconSmall toolName="Anagram" size={32} /> },
+            { id: "dup", name: "Remove Duplicates", description: "Remove duplicate lines or words from your text.", href: "/en/text-tools/remove-duplicates", iconLarge: <ToolIconSmall toolName="Remove Duplicates" size={32} /> },
+            { id: "lorem", name: "Lorem Ipsum", description: "Generate placeholder Lorem Ipsum text for your designs.", href: "/en/text-tools/lorem-ipsum", iconLarge: <ToolIconSmall toolName="Lorem Ipsum" size={32} /> },
+            { id: "blab", name: "Blabber", description: "Generate random placeholder text similar to Lorem Ipsum.", href: "/en/text-tools/blabber", iconLarge: <ToolIconSmall toolName="Blabber" size={32} /> },
         ]
     }
 ];
 
 export default function Home() {
-    const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
-    const [openCategory, setOpenCategory] = useState<string | null>(null);
-
-    const activeCategory = CATEGORIES.find(c => c.id === openCategory);
-
-    // Absolute Geometric Parity Constants
-    const TILE_RADIUS = 16;
-    const GLOBAL_TILE_HEIGHT = 250; 
-    const GLOBAL_TILE_WIDTH = 360; 
-
     return (
-        <Box sx={{ minHeight: "100%", pb: { xs: 4, md: 8 }, overflow: "hidden", boxSizing: "border-box" }}>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "WebApplication",
-                        "name": "FoX Dev Tools",
-                        "description": "A fast, privacy-first suite of developer tools.",
-                        "applicationCategory": "DeveloperApplication",
-                        "operatingSystem": "Any",
-                        "offers": {
-                            "@type": "Offer",
-                            "price": "0",
-                            "priceCurrency": "USD"
-                        },
-                        "creator": {
-                            "@type": "Person",
-                            "name": "Rahul Khedekar"
-                        }
-                    })
-                }}
-            />
-            <LayoutGroup>
-                {/* Hero Section */}
-                <Collapse in={!openCategory} unmountOnExit>
-                    <Box
-                        sx={{
-                            textAlign: "center",
-                            py: { xs: 3, md: 4 },
-                            px: 2,
-                            mb: 3,
-                            position: "relative",
-                            "&::before": {
-                                content: '""',
-                                position: "absolute",
-                                top: 0,
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                width: "100%",
-                                maxWidth: 800,
-                                height: "100%",
-                                background: isDark
-                                    ? "radial-gradient(ellipse at center, rgba(124,58,237,0.18) 0%, transparent 75%)"
-                                    : "radial-gradient(ellipse at center, rgba(124,58,237,0.1) 0%, transparent 75%)",
-                                pointerEvents: "none",
-                            },
-                        }}
-                    >
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-                            <Typography
-                                variant="h1"
-                                component="h1"
-                                fontWeight={950}
-                                sx={{
-                                    letterSpacing: "-0.04em",
-                                    fontSize: { xs: "2.5rem", sm: "3.5rem", md: "5rem" },
-                                    lineHeight: 1.05,
-                                    background: "linear-gradient(135deg, #7C3AED 0%, #DB2777 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    backgroundClip: "text",
-                                    mb: 2
-                                }}
-                            >
-                                FoX Dev Tools
-                            </Typography>
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                <Image
-                                    src="/foxdevtools_logo.png"
-                                    alt="FoX Dev Tools - Privacy-First Developer Tools Mascot"
-                                    width={280}
-                                    height={280}
-                                    priority
-                                    sizes="(max-width: 640px) 180px, (max-width: 900px) 220px, 280px"
-                                    style={{
-                                        width: '100%',
-                                        maxWidth: '280px',
-                                        height: 'auto'
-                                    }}
-                                />
-                            </Box>
-                        </Box>
+        <div className="flex flex-col gap-12 w-full pb-12">
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-50 dark:opacity-40">
+                <GravityStarsBackground className="text-primary" starsCount={250} movementSpeed={0.5} starsOpacity={0.8} />
+            </div>
+            
+            <div className="relative z-10 flex flex-col gap-12 w-full max-w-6xl mx-auto">
+            {/* Hero Section */}
+            <div className="flex flex-col items-center text-center mt-12 mb-4 gap-6">
+                <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20 flex gap-1.5 font-semibold text-xs rounded-full">
+                    <LockClosedIcon className="size-4" /> 100% PRIVATE • CLIENT-SIDE ONLY
+                </Badge>
+                
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground max-w-3xl">
+                    Tools for Developers.<br />
+                    <span className="bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">Where Data Never Leaves.</span>
+                </h1>
+                
+                <p className="text-muted-foreground text-lg sm:text-xl max-w-2xl">
+                    Experience fast, seamless transformations and validations—right in your browser. No uploads, no delays, no tracking.
+                </p>
 
-                        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-                            <Chip
-                                icon={<LockIcon sx={{ fontSize: "1rem !important", color: "inherit !important" }} />}
-                                label="100% PRIVATE • CLIENT-SIDE ONLY"
-                                size="small"
-                                sx={{
-                                    fontWeight: 800,
-                                    fontSize: "0.75rem",
-                                    letterSpacing: "0.05em",
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                    color: "primary.main",
-                                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                                    height: 32,
-                                    px: 1
-                                }}
-                            />
-                        </Box>
+                <div className="flex flex-wrap justify-center gap-6 mt-4">
+                    {[
+                        { icon: <LockClosedIcon className="text-primary size-5" />, title: "Zero Data Leakage" },
+                        { icon: <LayersIcon className="text-primary size-5" />, title: "Zero Storage" },
+                        { icon: <TokensIcon className="text-primary size-5" />, title: "Zero Backend" },
+                        { icon: <CheckCircledIcon className="text-primary size-5" />, title: "Absolute Privacy" }
+                    ].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                            {item.icon}
+                            <span className="text-sm font-semibold">{item.title}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-                        <Typography
-                            variant="h2"
-                            component="h2"
-                            fontWeight={950}
-                            sx={{
-                                mb: 2,
-                                letterSpacing: "-0.04em",
-                                fontSize: "3rem",
-                                lineHeight: 1.05,
-                                "& span": {
-                                    background: "linear-gradient(135deg, #7C3AED 0%, #DB2777 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    backgroundClip: "text",
-                                },
-                            }}
-                        >
-                            Tools for Developers.<br />
-                            <span>Where Your Data Never Leaves.</span>
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            color="text.secondary"
-                            sx={{
-                                maxWidth: 800,
-                                mx: "auto",
-                                lineHeight: 1.8,
-                                fontSize: "1.125rem",
-                                fontWeight: 500,
-                                mb: 5,
-                                opacity: 0.9
-                            }}
-                        >
-                            Experience fast, seamless transformations and validations—right in your browser.<br />
-                            No uploads, no delays, no compromises.
-                        </Typography>
-
-                        {/* Trust Certification row */}
-                        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: { xs: "center", md: "stretch" }, justifyContent: "center", gap: { xs: 2, md: 5 }, flexWrap: "wrap" }}>
-                            {[
-                                { icon: <LockIcon fontSize="small" color="primary" />, title: "Zero Data Leakage", label: "Your data never leaves your device" },
-                                { icon: <StorageIcon fontSize="small" color="primary" />, title: "Zero Storage", label: "Nothing is saved. Ever." },
-                                { icon: <ServerIcon fontSize="small" color="primary" />, title: "Zero Backend", label: "No servers. No API calls. No tracking." },
-                                { icon: <ShieldIcon fontSize="small" color="primary" />, title: "Absolute Privacy", label: "Everything runs locally—secure & instant" }
-                            ].map((item, idx) => (
-                                <Box key={idx} sx={{ textAlign: "center", maxWidth: 250 }}>
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5, justifyContent: { xs: "center", md: "flex-start" } }}>
-                                        {item.icon}
-                                        <Typography variant="caption" fontWeight={900} sx={{ textTransform: "uppercase", letterSpacing: "0.05em", color: "text.primary" }}>
-                                            {item.title}
-                                        </Typography>
-                                    </Box>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.3 }}>
-                                        {item.label}
-                                    </Typography>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Box>
-                </Collapse>
-
-                {/* Content Area */}
-                <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2.5, md: 4 }, position: "relative" }}>
-                    {/* Dashboard Grid Layout - Truly Responsive 3rd/2nd Column Wrap */}
-                    <Collapse in={!openCategory} unmountOnExit>
-                        <Box sx={{
-                            display: "grid",
-                            gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${GLOBAL_TILE_WIDTH}px), 1fr))`,
-                            gap: 3,
-                            justifyContent: "center",
-                            justifyItems: "center"
-                        }}>
-                            {CATEGORIES.map((cat) => (
-                                <motion.div
-                                    key={cat.id}
-                                    layoutId={`card-${cat.id}`}
-                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                    style={{
-                                        height: GLOBAL_TILE_HEIGHT,
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        position: "relative",
-                                        zIndex: 1,
-                                        borderRadius: TILE_RADIUS,
-                                        width: "100%",
-                                        maxWidth: GLOBAL_TILE_WIDTH,
-                                    }}
-                                >
-                                    <Card
-                                        onClick={() => setOpenCategory(cat.id)}
-                                        sx={{
-                                            height: GLOBAL_TILE_HEIGHT,
-                                            width: "100%",
-                                            maxWidth: GLOBAL_TILE_WIDTH,
-                                            position: "relative",
-                                            cursor: "pointer",
-                                            bgcolor: "background.paper",
-                                            borderRadius: `${TILE_RADIUS}px`,
-                                            border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#F1F5F9"}`,
-                                            boxShadow: isDark ? "0 4px 20px rgba(0,0,0,0.4)" : "0 4px 15px rgba(0,0,0,0.05)",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            boxSizing: "border-box",
-                                            transition: "transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
-                                            "&:hover": {
-                                                transform: "translateY(-6px)",
-                                                boxShadow: `0 20px 40px ${alpha(cat.color, 0.15)}`,
-                                                borderColor: alpha(cat.color, 0.4),
-                                            },
-                                        }}
-                                    >
-                                        <CardContent sx={{ p: 4, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", flexGrow: 1, justifyContent: "center" }}>
-                                            <Box sx={{ width: 120, height: 86, mb: 3, borderRadius: 3.5, bgcolor: isDark ? alpha(cat.color, 0.1) : "#F8FAFC", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(2, 1fr)", gap: 0.75, p: 1.25 }}>
-                                                {cat.tools.map((tool) => {
-                                                    const toolColor = getToolColor(tool.name);
-                                                    return (
-                                                        <motion.div key={tool.id} layoutId={`icon-${cat.id}-${tool.id}`} transition={{ type: "spring", stiffness: 500, damping: 35 }} style={{ backgroundColor: alpha(toolColor, 0.12), borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10, width: "100%", height: "100%" }}>
-                                                            <Box sx={{ width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: toolColor }}>
-                                                                {tool.icon}
-                                                            </Box>
-                                                        </motion.div>
-                                                    );
-                                                })}
-                                            </Box>
-                                            <Typography variant="h6" fontWeight={950} sx={{ mb: 0.5 }}>{cat.name}</Typography>
-                                            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: "uppercase", opacity: 0.6 }}>{cat.tools.length} Tools Available</Typography>
-                                        </CardContent>
-                                        <Box sx={{ position: "absolute", bottom: 16, right: 16, width: 24, height: 24, borderRadius: "50%", bgcolor: alpha(cat.color, 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: cat.color }}><ArrowForwardIcon sx={{ fontSize: 14 }} /></Box>
+            {/* Dashboard Categories */}
+            {CATEGORIES.map((category) => (
+                <div key={category.id} className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg" style={{ backgroundColor: `${category.color}15`, color: category.color }}>
+                            {category.icon}
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">{category.name}</h2>
+                            <p className="text-sm text-muted-foreground">{category.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {category.tools.map((tool) => {
+                            const toolColor = getToolColor(tool.name);
+                            return (
+                                <Link key={tool.id} href={tool.href} className="group outline-none">
+                                    <Card className="h-full transition-all hover:bg-muted/50 hover:border-border cursor-pointer">
+                                        <CardHeader className="flex flex-row items-start gap-4 space-y-0 p-5">
+                                            <div 
+                                                className="p-2.5 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                                                style={{ backgroundColor: `${toolColor}15`, color: toolColor }}
+                                            >
+                                                {tool.iconLarge}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <CardTitle className="text-base group-hover:text-primary transition-colors flex items-center gap-1.5">
+                                                    {tool.name}
+                                                    <ArrowRightIcon className="size-3.5 opacity-0 -ml-2 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                                                </CardTitle>
+                                                <CardDescription className="line-clamp-2 leading-relaxed">
+                                                    {tool.description}
+                                                </CardDescription>
+                                            </div>
+                                        </CardHeader>
                                     </Card>
-                                </motion.div>
-                            ))}
-
-                            <motion.div
-                                style={{
-                                    height: GLOBAL_TILE_HEIGHT,
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    position: "relative",
-                                    zIndex: 1,
-                                    borderRadius: TILE_RADIUS,
-                                    width: "100%",
-                                    maxWidth: GLOBAL_TILE_WIDTH,
-                                }}
-                            >
-                                <Card
-                                    sx={{
-                                        height: GLOBAL_TILE_HEIGHT,
-                                        width: "100%",
-                                        maxWidth: GLOBAL_TILE_WIDTH,
-                                        position: "relative",
-                                        borderRadius: `${TILE_RADIUS}px`,
-                                        bgcolor: isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)",
-                                        border: `1px dashed ${isDark ? "rgba(255,255,255,0.08)" : "#E2E8F0"}`,
-                                        transition: "all 0.3s ease",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        boxSizing: "border-box",
-                                        "&:hover": {
-                                            borderColor: theme.palette.primary.main,
-                                            bgcolor: isDark ? alpha(theme.palette.primary.main, 0.05) : alpha(theme.palette.primary.main, 0.01),
-                                            "& .coming-soon-icon": { transform: "scale(1.1) rotate(15deg)", color: theme.palette.primary.main }
-                                        }
-                                    }}
-                                >
-                                    <CardContent sx={{ p: 4, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", flexGrow: 1, justifyContent: "center" }}>
-                                        <Box sx={{ width: 120, height: 86, mb: 3, borderRadius: 3.5, bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", display: "flex", alignItems: "center", justifyContent: "center", border: `2px dashed ${isDark ? "rgba(255,255,255,0.08)" : "#E2E8F0"}` }}>
-                                            <SparklesIcon className="coming-soon-icon" sx={{ fontSize: 32, color: "text.disabled", opacity: 0.5, transition: "all 0.3s ease" }} />
-                                        </Box>
-                                        <Typography variant="h6" fontWeight={950} color="text.disabled" sx={{ mb: 0.5 }}>More Tools Coming Soon</Typography>
-                                        <Typography variant="caption" color="text.disabled" fontWeight={700} sx={{ textTransform: "uppercase", opacity: 0.6 }}>Development in Progress</Typography>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        </Box>
-                    </Collapse>
-
-                    {/* Expanded Category View - Robust No-Crop Responsive Grid */}
-                    <Fade in={!!openCategory} unmountOnExit>
-                        <Box sx={{ width: "100%", display: "flex", justifyContent: "center", position: "relative" }}>
-                            <Box
-                                onClick={() => setOpenCategory(null)}
-                                sx={{
-                                    position: "fixed",
-                                    inset: 0,
-                                    zIndex: 40,
-                                    bgcolor: "transparent",
-                                    cursor: "default"
-                                }}
-                            />
-
-                            <motion.div
-                                layoutId={`card-${activeCategory?.id}`}
-                                onClick={(e) => e.stopPropagation()}
-                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                style={{
-                                    position: "relative",
-                                    width: "fit-content",
-                                    maxWidth: "100%",
-                                    backgroundColor: theme.palette.background.paper,
-                                    borderRadius: TILE_RADIUS,
-                                    border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#F1F5F9"}`,
-                                    boxShadow: isDark ? "0 30px 60px rgba(0,0,0,0.5)" : "0 30px 60px rgba(0,0,0,0.05)",
-                                    zIndex: 50,
-                                    overflow: "hidden",
-                                }}
-                            >
-                                <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                    <Box sx={{ width: "100%", display: "flex", alignItems: "center", mb: 3.5, gap: 2.5, px: 2 }}>
-                                        <IconButton onClick={() => setOpenCategory(null)} sx={{ bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) } }}>
-                                            <ChevronLeftIcon />
-                                        </IconButton>
-                                        <Box>
-                                            <Typography variant="h4" fontWeight={950} sx={{ letterSpacing: "-0.015em", color: "text.primary" }}>{activeCategory?.name}</Typography>
-                                                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>{activeCategory?.description}</Typography>
-                                            </Box>
-                                        </Box>
-
-                                        {/* ROBUST RESPONSIVE GRID - Eliminates cropping by allowing tracks to expand before wrapping */}
-                                        <Box sx={{ 
-                                            display: "grid", 
-                                            gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${GLOBAL_TILE_WIDTH}px), 1fr))`, 
-                                            gap: 3,
-                                            width: "100%", 
-                                            maxWidth: {
-                                                xs: "100%",
-                                                sm: GLOBAL_TILE_WIDTH * 2 + 24, // 2 items + 1 gap
-                                                md: GLOBAL_TILE_WIDTH * 3 + 48  // 3 items + 2 gaps
-                                            },
-                                            px: { xs: 2, sm: 0 },
-                                            justifyContent: "center"
-                                        }}>
-                                            {activeCategory?.tools.map((tool) => {
-                                                const toolColor = getToolColor(tool.name);
-                                                return (
-                                                <motion.div
-                                                    key={tool.href}
-                                                    style={{
-                                                        height: GLOBAL_TILE_HEIGHT,
-                                                        display: "flex",
-                                                        justifyContent: "center",
-                                                        width: "100%",
-                                                        maxWidth: GLOBAL_TILE_WIDTH,
-                                                    }}
-                                                >
-                                                    <Card
-                                                        component={Link}
-                                                        href={tool.href}
-                                                        sx={{
-                                                            height: "100%",
-                                                            width: "100%",
-                                                            maxWidth: GLOBAL_TILE_WIDTH,
-                                                            display: "flex",
-                                                            flexDirection: "column",
-                                                            textDecoration: "none",
-                                                            bgcolor: alpha(toolColor, isDark ? 0.05 : 0.03),
-                                                            border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
-                                                            borderRadius: `${TILE_RADIUS}px`,
-                                                            transition: "all 0.25s ease",
-                                                            cursor: "pointer",
-                                                            boxSizing: "border-box",
-                                                            "&:hover": {
-                                                                transform: "translateY(-4px)",
-                                                                boxShadow: `0 12px 30px ${alpha(toolColor, isDark ? 0.25 : 0.08)}`,
-                                                                borderColor: alpha(toolColor, 0.3),
-                                                                bgcolor: alpha(toolColor, isDark ? 0.08 : 0.06)
-                                                            }
-                                                        }}
-                                                    >
-                                                        <CardContent sx={{ p: 4, flexGrow: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "space-between", boxSizing: "border-box" }}>
-                                                            <Box>
-                                                                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                                                                    <motion.div layoutId={`icon-${activeCategory.id}-${tool.id}`} transition={{ type: "spring", stiffness: 500, damping: 35 }} className="tool-icon-box" style={{ width: 52, height: 52, borderRadius: 3, backgroundColor: alpha(toolColor, 0.12), display: "flex", alignItems: "center", justifyContent: "center", color: toolColor }}>
-                                                                        {tool.iconLarge}
-                                                                    </motion.div>
-                                                                    <Typography variant="subtitle1" fontWeight={950}>{tool.name}</Typography>
-                                                                </Box>
-                                                                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, fontWeight: 500 }}>{tool.description}</Typography>
-                                                            </Box>
-                                                            <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap", mt: "auto" }}>
-                                                                {tool.tags.map(tag => (
-                                                                    <Chip key={tag} label={tag} size="small" variant="outlined" sx={{ fontSize: "0.65rem", height: 20, borderColor: alpha(toolColor, 0.2), color: toolColor, fontWeight: 700 }} />
-                                                                ))}
-                                                            </Box>
-                                                        </CardContent>
-                                                    </Card>
-                                                </motion.div>
-                                                );
-                                            })}
-                                        </Box>
-                                    </Box>
-                                </motion.div>
-                            </Box>
-                        </Fade>
-                </Box>
-            </LayoutGroup>
-        </Box>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            ))}
+            </div>
+        </div>
     );
 }

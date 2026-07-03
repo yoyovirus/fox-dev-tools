@@ -8,25 +8,26 @@
 */
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Copy, Download, Trash2, AlertCircle, FileText } from "lucide-react";
 import { useState, useCallback } from "react";
 import { Editor } from "@/components/Editor";
-import {
-    Box, Typography, Button, Alert, Snackbar,
-    alpha, useTheme, Chip, IconButton, Tooltip, Divider
-} from "@mui/material";
-import { CheckCircle, ErrorOutline, DeleteOutline, ContentCopy, Download as DownloadIcon } from "@mui/icons-material";
 import { ToolHeader } from "@/components/ToolHeader";
 import { getToolColor } from "@/lib/toolColors";
 import { useToolPage } from "@/lib/hooks";
+import { CopyButton } from "@/components/CopyButton";
+import { AnimatedButton } from "@/components/AnimatedButton";
 
 const SAMPLE = "{\n  \"name\": \"Alice\",\n  \"age\": 30,\n  \"active\": true,\n  \"roles\": [\"admin\", \"editor\"],\n  \"address\": {\n    \"city\": \"New York\",\n    \"zip\": \"10001\"\n  }\n}";
 
 export default function ValidatorPage() {
-    const theme = useTheme();
     const {
         input, setInput,
         handleCopy, handleDownload, handleClear, handleLoadSample,
-        SnackbarProps,
     } = useToolPage();
     const [validationResult, setValidationResult] = useState<{ isValid: boolean; message: string } | null>(null);
 
@@ -46,102 +47,52 @@ export default function ValidatorPage() {
     }, [setInput]);
 
     return (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Page Header */}
+        <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
                 toolName="JSON Validator"
                 toolColor={getToolColor("JSON Validator")}
                 description="Quickly validate your JSON data to pinpoint syntax errors."
             />
 
-            {/* Toolbar */}
-            <Box sx={{
-                display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, flexWrap: "wrap",
-                p: { xs: 1, sm: 1.25 }, mb: 2,
-                bgcolor: "background.paper",
-                borderRadius: 2.5,
-                border: `1px solid ${theme.palette.divider}`,
-            }}>
-                {/* Result badge */}
-                {validationResult && (
-                    <Chip
-                        icon={validationResult.isValid ? <CheckCircle sx={{ fontSize: 16 }} /> : <ErrorOutline sx={{ fontSize: 16 }} />}
-                        label={validationResult.isValid ? "Valid JSON" : "Invalid JSON"}
-                        size="small"
-                        sx={{
-                            fontWeight: 700,
-                            bgcolor: alpha(validationResult.isValid ? "#059669" : "#DC2626", 0.1),
-                            color: validationResult.isValid ? "#059669" : "#DC2626",
-                            border: `1px solid ${alpha(validationResult.isValid ? "#059669" : "#DC2626", 0.25)}`,
-                            mr: 0.5
-                        }}
-                    />
-                )}
-                <Button
-                    variant="outlined"
-                    onClick={() => handleLoadSample(SAMPLE)}
-                    size="small"
-                    sx={{ borderRadius: 2, ml: 1 }}
-                >
-                    Sample
-                </Button>
-                {input && (
-                    <>
-                        <Tooltip title="Copy JSON">
-                            <IconButton onClick={() => handleCopy()} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <ContentCopy sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Download JSON">
-                            <IconButton onClick={() => handleDownload(undefined, "json-validator.json")} size="small" sx={{ borderRadius: 1.5, color: "text.secondary" }}>
-                                <DownloadIcon sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 20, alignSelf: "center" }} />
-                        <Tooltip title="Clear">
-                            <IconButton onClick={() => { handleClear(); setValidationResult(null); }} size="small" color="error" sx={{ borderRadius: 1.5 }}>
-                                <DeleteOutline sx={{ fontSize: 17 }} />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-            </Box>
 
-            {/* Error / Success Message */}
+
             {validationResult && (
-                <Alert
-                    severity={validationResult.isValid ? "success" : "error"}
-                    onClose={() => setValidationResult(null)}
-                    sx={{ mb: 2, borderRadius: 2 }}
-                >
-                    {validationResult.message}
+                <Alert variant={validationResult.isValid ? "default" : "destructive"}>
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>{validationResult.message}</AlertDescription>
                 </Alert>
             )}
 
-            <Snackbar
-                {...SnackbarProps}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            />
-
-            {/* Editor */}
-            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1, textTransform: "uppercase", letterSpacing: "0.08em", ml: 0.5 }}>
-                    JSON Input
-                </Typography>
-                <Box sx={{
-                    flexGrow: 1,
-                    minHeight: { xs: 500, md: 450 },
-                    borderRadius: 2.5,
-                    overflow: "hidden",
-                    border: `1px solid ${theme.palette.divider}`,
-                }}>
+            <div className="flex-1 min-h-0 flex flex-col border border-border rounded-xl overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-3 py-2">
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center">
+                        JSON Input
+                        {validationResult && (
+                            <Badge variant="outline" className="font-mono bg-background text-muted-foreground ml-3 h-5 px-1.5 text-[10px] rounded-sm">
+                                {validationResult.isValid ? "Valid JSON" : "Invalid JSON"}
+                            </Badge>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => handleLoadSample(SAMPLE)} />
+                        {input && (
+                            <>
+                                <Separator orientation="vertical" className="h-4 mx-1" />
+                                <CopyButton textToCopy={input} tooltipText="Copy JSON" />
+                                <AnimatedButton variant="ghost" size="icon" className="size-7" icon={Download} tooltipText="Download JSON" onClickAction={() => handleDownload(undefined, "json-validator.json")} />
+                                <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear" onClickAction={() => { handleClear(); setValidationResult(null); }} />
+                            </>
+                        )}
+                    </div>
+                </div>
+                <div className="flex-1">
                     <Editor
                         value={input}
                         placeholder="Paste your JSON here to validate..."
                         onChange={handleInputChange}
                     />
-                </Box>
-            </Box>
-        </Box>
+                </div>
+            </div>
+        </div>
     );
 }
