@@ -65,7 +65,7 @@ export default function Home() {
             </div>
             
             {/* Hero Section */}
-            <div className="snap-always snap-start shrink-0 relative z-10 flex flex-col items-center justify-center text-center h-[calc(100vh-6rem)] md:h-[calc(100vh-7rem)] w-full max-w-6xl mx-auto gap-6 pb-20">
+            <div className="md:snap-always md:snap-start shrink-0 relative z-10 flex flex-col items-center justify-center text-center min-h-[calc(100dvh-6rem)] md:min-h-[calc(100dvh-7rem)] w-full max-w-6xl mx-auto gap-6 pb-20 pt-10">
                 <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20 flex gap-1.5 font-semibold text-xs rounded-full">
                     <LockClosedIcon className="size-4" /> 100% PRIVATE • CLIENT-SIDE ONLY
                 </Badge>
@@ -103,7 +103,7 @@ export default function Home() {
             </div>
 
             {/* Dashboard Categories */}
-            <div id="tools-section" className="snap-start snap-always relative z-10 pt-12 pb-24 flex flex-col gap-12 min-h-screen w-full max-w-6xl mx-auto">
+            <div id="tools-section" className="md:snap-start md:snap-always relative z-10 pt-12 pb-24 flex flex-col gap-12 min-h-[100dvh] w-full max-w-6xl mx-auto">
                 {CATEGORIES.map((category) => (
                     <div key={category.id} className="flex flex-col gap-4">
                     <div className="flex items-center mb-2">

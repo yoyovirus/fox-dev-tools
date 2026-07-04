@@ -53,11 +53,12 @@ function Header() {
 
     return (
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
-            <div className="flex items-center gap-2">
-                <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 h-4" />
-                <Breadcrumb>
-                    <BreadcrumbList>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+                <SidebarTrigger className="-ml-1 shrink-0" />
+                <Separator orientation="vertical" className="mr-2 h-4 shrink-0" />
+                <div className="min-w-0 truncate">
+                    <Breadcrumb>
+                        <BreadcrumbList>
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.id + "-" + index}>
                                 <BreadcrumbItem>
@@ -82,9 +83,10 @@ function Header() {
                         ))}
                     </BreadcrumbList>
                 </Breadcrumb>
+                </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 shrink-0">
                 <CommandMenu />
                 <Button variant="ghost" size="icon" onClick={toggleColorMode}>
                     {mode === "dark" ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
@@ -102,7 +104,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <AppSidebar variant="inset" />
             <SidebarInset>
                 <Header />
-                <main className={`flex-1 overflow-auto bg-background p-4 md:p-6 ${isHome ? 'snap-y snap-mandatory' : ''}`}>
+                <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-background p-4 md:p-6 ${isHome ? 'md:snap-y md:snap-mandatory' : ''}`}>
                     {children}
                 </main>
             </SidebarInset>

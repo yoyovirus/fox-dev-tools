@@ -39,6 +39,12 @@ export const metadata: Metadata = {
   }
 };
 
+export const viewport: import("next").Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
