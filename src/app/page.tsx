@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ToolIconSmall } from "@/components/ToolIconSmall";
 import { getToolColor } from "@/lib/toolColors";
-import { CodeIcon, LockClosedIcon, LayersIcon, TokensIcon, CheckCircledIcon, MagicWandIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { LockClosedIcon, LayersIcon, TokensIcon, CheckCircledIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { GravityStarsBackground } from "@/components/GravityStarsBackground";
 
 const CATEGORIES = [
@@ -15,7 +15,6 @@ const CATEGORIES = [
         name: "JSON Tools",
         description: "A suite for formatting, validating, and transforming JSON data.",
         color: "#7C3AED",
-        icon: <CodeIcon className="size-5" />,
         tools: [
             { id: "fmt", name: "JSON Formatter", description: "Beautify and minify JSON with customizable indentation.", href: "/en/json-tools/json-formatter", iconLarge: <ToolIconSmall toolName="JSON Formatter" size={32} /> },
             { id: "val", name: "JSON Validator", description: "Quickly validate your JSON data to pinpoint syntax errors.", href: "/en/json-tools/json-validator", iconLarge: <ToolIconSmall toolName="JSON Validator" size={32} /> },
@@ -32,7 +31,6 @@ const CATEGORIES = [
         name: "Base64 Tools",
         description: "Encode, decode, and convert between Base64 and images.",
         color: "#0EA5E9",
-        icon: <MagicWandIcon className="size-5" />,
         tools: [
             { id: "enc", name: "Base64 Encoder / Decoder", description: "Encode text to Base64 or decode it back in real-time.", href: "/en/base64-tools/base64-encoder-decoder", iconLarge: <ToolIconSmall toolName="Base64 Encoder / Decoder" size={32} /> },
             { id: "i2b", name: "Image to Base64", description: "Convert images to Base64 strings instantly.", href: "/en/base64-tools/image-to-base64", iconLarge: <ToolIconSmall toolName="Image to Base64" size={32} /> },
@@ -44,7 +42,6 @@ const CATEGORIES = [
         name: "Text Tools",
         description: "A comprehensive suite for text manipulation, comparison, and generation.",
         color: "#14B8A6",
-        icon: <MagicWandIcon className="size-5" />,
         tools: [
             { id: "cmp", name: "Text Compare", description: "Compare two texts side by side and identify differences.", href: "/en/text-tools/text-compare", iconLarge: <ToolIconSmall toolName="Text Compare" size={32} /> },
             { id: "case", name: "Case Converter", description: "Convert text between uppercase, lowercase, title case, and more.", href: "/en/text-tools/case-converter", iconLarge: <ToolIconSmall toolName="Case Converter" size={32} /> },
@@ -101,10 +98,7 @@ export default function Home() {
             {/* Dashboard Categories */}
             {CATEGORIES.map((category) => (
                 <div key={category.id} className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-lg" style={{ backgroundColor: `${category.color}15`, color: category.color }}>
-                            {category.icon}
-                        </div>
+                    <div className="flex items-center mb-2">
                         <div>
                             <h2 className="text-2xl font-bold tracking-tight">{category.name}</h2>
                             <p className="text-sm text-muted-foreground">{category.description}</p>
