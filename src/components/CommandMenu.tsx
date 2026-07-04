@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/command"
 import { getToolColor } from "@/lib/toolColors"
 import { ToolIconSmall } from "./ToolIconSmall"
+import { Search } from "lucide-react"
 
 const ALL_TOOLS = [
   // JSON
@@ -65,9 +66,10 @@ export function CommandMenu() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted/80 transition-colors w-full max-w-[240px] md:max-w-xs"
+        className="inline-flex items-center justify-center md:justify-start gap-2 rounded-lg border bg-muted/50 h-9 w-9 md:h-auto md:w-full md:px-3 md:py-1.5 text-sm text-muted-foreground hover:bg-muted/80 transition-colors md:max-w-xs"
       >
-        <span className="flex-1 text-left">Search tools...</span>
+        <Search className="size-4 md:hidden" />
+        <span className="hidden md:flex flex-1 text-left">Search tools...</span>
         <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 hidden sm:flex">
           <span className="text-xs">⌘</span>K
         </kbd>
