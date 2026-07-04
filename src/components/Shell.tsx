@@ -8,7 +8,7 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
+import { SunIcon, MoonIcon, HomeIcon } from "@radix-ui/react-icons";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -20,11 +20,11 @@ function Header() {
     
     const pathSegments = pathname.split('/').filter(Boolean).filter(s => s !== 'en');
     
-    let breadcrumbs: Array<{ label: string; isCurrent?: boolean; href?: string }> = [];
+    let breadcrumbs: Array<{ label: React.ReactNode; isCurrent?: boolean; href?: string; id: string }> = [];
     if (pathSegments.length === 0) {
-        breadcrumbs = [{ label: 'Home', isCurrent: true }];
+        breadcrumbs = [{ label: <HomeIcon className="size-4" />, isCurrent: true, id: 'home' }];
     } else {
-        breadcrumbs.push({ label: 'Home', href: '/' });
+        breadcrumbs.push({ label: <HomeIcon className="size-4" />, href: '/', id: 'home' });
         
         for (let i = 0; i < pathSegments.length; i++) {
             const segment = pathSegments[i];
@@ -45,7 +45,8 @@ function Header() {
             breadcrumbs.push({ 
                 label: name, 
                 isCurrent: isLast,
-                href: isLast ? undefined : (i === 0 && pathSegments.length > 1) ? undefined : `/${pathSegments.slice(0, i + 1).join('/')}` 
+                href: isLast ? undefined : (i === 0 && pathSegments.length > 1) ? undefined : `/${pathSegments.slice(0, i + 1).join('/')}`,
+                id: name
             });
         }
     }
@@ -58,7 +59,7 @@ function Header() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         {breadcrumbs.map((crumb, index) => (
-                            <React.Fragment key={crumb.label + index}>
+                            <React.Fragment key={crumb.id + "-" + index}>
                                 <BreadcrumbItem>
                                     {crumb.isCurrent ? (
                                         <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
