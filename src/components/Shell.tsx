@@ -90,7 +90,7 @@ function Header() {
 function LayoutContent({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar variant="inset" />
             <SidebarInset>
                 <Header />
                 <main className="flex-1 overflow-auto p-4 md:p-6 bg-background">
