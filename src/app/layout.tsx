@@ -50,7 +50,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("dark", geistSans.variable, geistMono.variable)}
     >
-      <body className="font-sans antialiased h-dvh overflow-hidden">
+      <body className="font-sans antialiased">
         <TooltipProvider delayDuration={200}>
           <Shell>{children}</Shell>
         </TooltipProvider>

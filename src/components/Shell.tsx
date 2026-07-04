@@ -98,9 +98,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isHome = pathname === '/';
     return (
-        <SidebarProvider className="h-dvh overflow-hidden">
+        <SidebarProvider>
             <AppSidebar variant="inset" />
-            <SidebarInset className="h-full overflow-hidden">
+            <SidebarInset>
                 <Header />
                 <main className={`flex-1 overflow-auto bg-background p-4 md:p-6 ${isHome ? 'snap-y snap-mandatory' : ''}`}>
                     {children}
