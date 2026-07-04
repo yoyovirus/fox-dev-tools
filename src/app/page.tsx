@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ToolIconSmall } from "@/components/ToolIconSmall";
 import { getToolColor } from "@/lib/toolColors";
-import { LockClosedIcon, LayersIcon, TokensIcon, CheckCircledIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { LockClosedIcon, LayersIcon, TokensIcon, CheckCircledIcon, ArrowRightIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { GravityStarsBackground } from "@/components/GravityStarsBackground";
 
 const CATEGORIES = [
@@ -59,14 +59,13 @@ const CATEGORIES = [
 
 export default function Home() {
     return (
-        <div className="flex flex-col gap-12 w-full pb-12">
+        <>
             <div className="fixed inset-0 z-0 pointer-events-none opacity-50 dark:opacity-40">
                 <GravityStarsBackground className="text-primary" starsCount={250} movementSpeed={0.5} starsOpacity={0.8} />
             </div>
             
-            <div className="relative z-10 flex flex-col gap-12 w-full max-w-6xl mx-auto">
             {/* Hero Section */}
-            <div className="flex flex-col items-center text-center mt-12 mb-4 gap-6">
+            <div className="snap-always snap-start shrink-0 relative z-10 flex flex-col items-center justify-center text-center h-[calc(100vh-6rem)] md:h-[calc(100vh-7rem)] w-full max-w-6xl mx-auto gap-6 pb-20">
                 <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20 flex gap-1.5 font-semibold text-xs rounded-full">
                     <LockClosedIcon className="size-4" /> 100% PRIVATE • CLIENT-SIDE ONLY
                 </Badge>
@@ -93,11 +92,20 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
+
+                <button 
+                    onClick={() => document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors animate-bounce select-none cursor-pointer"
+                >
+                    <span className="text-sm font-medium tracking-wide">Click here or scroll to see all tools</span>
+                    <ChevronDownIcon className="size-5" />
+                </button>
             </div>
 
             {/* Dashboard Categories */}
-            {CATEGORIES.map((category) => (
-                <div key={category.id} className="flex flex-col gap-4">
+            <div id="tools-section" className="snap-start snap-always relative z-10 pt-12 pb-24 flex flex-col gap-12 min-h-screen w-full max-w-6xl mx-auto">
+                {CATEGORIES.map((category) => (
+                    <div key={category.id} className="flex flex-col gap-4">
                     <div className="flex items-center mb-2">
                         <div>
                             <h2 className="text-2xl font-bold tracking-tight">{category.name}</h2>
@@ -136,6 +144,6 @@ export default function Home() {
                 </div>
             ))}
             </div>
-        </div>
+        </>
     );
 }
