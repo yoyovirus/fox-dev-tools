@@ -20,7 +20,7 @@ function Header() {
     
     const pathSegments = pathname.split('/').filter(Boolean).filter(s => s !== 'en');
     
-    let breadcrumbs = [];
+    let breadcrumbs: Array<{ label: string; isCurrent?: boolean; href?: string }> = [];
     if (pathSegments.length === 0) {
         breadcrumbs = [{ label: 'Home', isCurrent: true }];
     } else {
