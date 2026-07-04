@@ -112,7 +112,7 @@ export default function DiffPage() {
                     </div>
                     <div className="flex items-center gap-1">
                         <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={loadSample} />
-                        <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={ArrowRightLeft} label="Swap" onClickAction={swap} />
+                        <AnimatedButton variant="ghost" size="icon" className="size-7" icon={ArrowRightLeft} tooltipText="Swap input ↔ output" onClickAction={swap} />
                         {(original || modified) && (
                             <>
                                 <Separator orientation="vertical" className="h-4 mx-1" />

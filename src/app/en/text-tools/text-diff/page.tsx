@@ -97,7 +97,7 @@ export default function TextDiffPage() {
                     </Badge>
                 </div>
                 <Separator orientation="vertical" className="h-5 mx-1 opacity-50" />
-                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={ArrowRightLeft} label="Swap" onClickAction={swapEditors} />
+                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={ArrowRightLeft} tooltipText="Swap input ↔ output" onClickAction={swapEditors} />
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">

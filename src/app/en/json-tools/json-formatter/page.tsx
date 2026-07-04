@@ -32,8 +32,10 @@ export default function FormatterPage() {
         handleCopy, handleDownload, handleClear, handleLoadSample,
     } = useToolPage({ validateJson: true });
     const [indent, setIndent] = useState<number>(2);
+    const [mode, setMode] = useState<"format" | "minify">("format");
 
     const handleFormat = () => {
+        setMode("format");
         try {
             if (!input.trim()) return;
             setOutput(formatJson(input, indent));
@@ -41,6 +43,7 @@ export default function FormatterPage() {
     };
 
     const handleMinify = () => {
+        setMode("minify");
         try {
             if (!input.trim()) return;
             setOutput(minifyJson(input));
@@ -53,6 +56,17 @@ export default function FormatterPage() {
         setOutput(temp);
     };
 
+    const handleLoadSampleWithOutput = () => {
+        handleLoadSample(SAMPLE_JSON_FORMATTER);
+        try {
+            if (mode === "minify") {
+                setOutput(minifyJson(SAMPLE_JSON_FORMATTER));
+            } else {
+                setOutput(formatJson(SAMPLE_JSON_FORMATTER, indent));
+            }
+        } catch (err) {}
+    };
+
     return (
         <div className="h-[calc(100vh-140px)] flex flex-col gap-4">
             <ToolHeader
@@ -62,8 +76,15 @@ export default function FormatterPage() {
             />
 
             <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
-                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={Wand2} label="Format" onClickAction={handleFormat} />
-                <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={Shrink} label="Minify" onClickAction={handleMinify} />
+                <div className="flex rounded-md border shadow-sm overflow-hidden">
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 border-r transition-colors ${mode === 'format' ? 'bg-muted' : 'bg-background hover:bg-muted/50'}`} onClick={handleFormat}>
+                        <Wand2 className="size-3.5" /> Format
+                    </button>
+                    <button type="button" className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors ${mode === 'minify' ? 'bg-muted' : 'bg-background hover:bg-muted/50'}`} onClick={handleMinify}>
+                        <Shrink className="size-3.5" /> Minify
+                    </button>
+                </div>
+                
                 <Select value={indent.toString()} onValueChange={(val) => setIndent(Number(val))}>
                     <SelectTrigger className="w-[110px] h-8 text-xs bg-background shadow-sm">
                         <SelectValue placeholder="Indent" />
@@ -74,6 +95,7 @@ export default function FormatterPage() {
                         <SelectItem value="8">8 Spaces</SelectItem>
                     </SelectContent>
                 </Select>
+                
                 <div className="flex-1" />
                 <AnimatedButton variant="outline" size="sm" className="border border-border shadow-sm gap-1.5 h-8 px-3 text-xs rounded-md transition-all font-medium flex items-center" icon={ArrowRightLeft} tooltipText="Swap input ↔ output" onClickAction={handleSwap} />
             </div>
@@ -92,7 +114,7 @@ export default function FormatterPage() {
                             JSON Input
                         </div>
                         <div className="flex items-center gap-1">
-                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={() => handleLoadSample(SAMPLE_JSON_FORMATTER)} />
+                            <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={FileText} label="Sample" onClickAction={handleLoadSampleWithOutput} />
                             {(input || output) && (
                                 <>
                                     <Separator orientation="vertical" className="h-4 mx-1" />
