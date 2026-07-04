@@ -93,25 +93,6 @@ export default function ToTablePage() {
                 description="Convert JSON arrays into clean, readable tables instantly."
             />
 
-            <div className="flex flex-wrap items-center gap-2 p-2 px-3 bg-muted/20 border rounded-lg shrink-0">
-                {parsedData && (
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search in any column..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-9 bg-background h-8"
-                        />
-                        {searchQuery && (
-                            <Button variant="ghost" size="icon" className="absolute right-1 top-1 size-6 hover:bg-muted/50 rounded-md" onClick={() => setSearchQuery("")}>
-                                <X className="size-3.5" />
-                            </Button>
-                        )}
-                    </div>
-                )}
-            </div>
-
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="size-4" />
@@ -166,6 +147,20 @@ export default function ToTablePage() {
                         <div className="flex items-center gap-1">
                             {parsedData && (
                                 <>
+                                    <div className="relative w-32 sm:w-48 mr-1">
+                                        <Search className="absolute left-2 top-1.5 size-3.5 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Search table..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="pl-7 pr-7 bg-background h-7 text-xs"
+                                        />
+                                        {searchQuery && (
+                                            <Button variant="ghost" size="icon" className="absolute right-0.5 top-0.5 size-6 hover:bg-muted/50 rounded-sm" onClick={() => setSearchQuery("")}>
+                                                <X className="size-3" />
+                                            </Button>
+                                        )}
+                                    </div>
                                     <AnimatedButton variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5" icon={Download} tooltipText="Export CSV" onClickAction={exportCsv} />
                                     <CopyButton textToCopy={handleCopyMarkdown} tooltipText="Copy Markdown Table" size="sm" className="h-7 px-2 text-xs gap-1.5" />
                                     <AnimatedButton variant="ghost" size="icon" className="size-7 hover:bg-destructive/10 hover:text-destructive" icon={Trash2} tooltipText="Clear Output" onClickAction={() => setInput("")} />

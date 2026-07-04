@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { Search } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -15,7 +16,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
-    useSidebar
+    useSidebar,
+    SidebarInput
 } from "@/components/ui/sidebar";
 import { ToolIconSmall } from "./ToolIconSmall";
 import { getToolColor } from "@/lib/toolColors";
@@ -59,6 +61,19 @@ const TOOL_CATEGORIES = [
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname();
     const { state } = useSidebar();
+    const [searchQuery, setSearchQuery] = React.useState("");
+
+    const filteredCategories = React.useMemo(() => {
+        if (!searchQuery.trim()) return TOOL_CATEGORIES;
+        const lowerQuery = searchQuery.toLowerCase();
+        
+        return TOOL_CATEGORIES.map(category => {
+            const filteredTools = category.tools.filter(tool => 
+                tool.name.toLowerCase().includes(lowerQuery)
+            );
+            return { ...category, tools: filteredTools };
+        }).filter(category => category.tools.length > 0);
+    }, [searchQuery]);
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -84,33 +99,53 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <form 
+                    onSubmit={(e) => e.preventDefault()}
+                    className="p-2 pt-0 group-data-[collapsible=icon]:hidden"
+                >
+                    <div className="relative">
+                        <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
+                        <SidebarInput 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search tools..." 
+                            className="h-8 pl-8" 
+                        />
+                    </div>
+                </form>
             </SidebarHeader>
             <SidebarContent>
-                {TOOL_CATEGORIES.map((category) => (
-                    <SidebarGroup key={category.name}>
-                        <SidebarGroupLabel>{category.name}</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                {category.tools.map((tool) => {
-                                    const isActive = pathname === tool.href;
-                                    const toolColor = getToolColor(tool.name);
-                                    return (
-                                        <SidebarMenuItem key={tool.name}>
-                                            <SidebarMenuButton asChild isActive={isActive} tooltip={tool.name}>
-                                                <Link href={tool.href} className="flex items-center gap-2">
-                                                    <div style={{ color: toolColor }} className="flex items-center justify-center">
-                                                        <ToolIconSmall toolName={tool.name} size={16} />
-                                                    </div>
-                                                    <span>{tool.name}</span>
-                                                </Link>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    );
-                                })}
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                ))}
+                {filteredCategories.length > 0 ? (
+                    filteredCategories.map((category) => (
+                        <SidebarGroup key={category.name}>
+                            <SidebarGroupLabel>{category.name}</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {category.tools.map((tool) => {
+                                        const isActive = pathname === tool.href;
+                                        const toolColor = getToolColor(tool.name);
+                                        return (
+                                            <SidebarMenuItem key={tool.name}>
+                                                <SidebarMenuButton asChild isActive={isActive} tooltip={tool.name}>
+                                                    <Link href={tool.href} className="flex items-center gap-2">
+                                                        <div style={{ color: toolColor }} className="flex items-center justify-center">
+                                                            <ToolIconSmall toolName={tool.name} size={16} />
+                                                        </div>
+                                                        <span>{tool.name}</span>
+                                                    </Link>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        );
+                                    })}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    ))
+                ) : (
+                    <div className="p-4 text-center text-sm text-muted-foreground group-data-[collapsible=icon]:hidden">
+                        No tools found.
+                    </div>
+                )}
             </SidebarContent>
             <SidebarRail />
         </Sidebar>
