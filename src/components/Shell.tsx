@@ -6,7 +6,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbLink } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbLink, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { SunIcon, MoonIcon, HomeIcon } from "@radix-ui/react-icons";
 import { usePathname } from "next/navigation";
@@ -65,10 +65,16 @@ function Header() {
                                         <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                                     ) : crumb.href ? (
                                         <BreadcrumbLink asChild>
-                                            <Link href={crumb.href}>{crumb.label}</Link>
+                                            <Link href={crumb.href} className="flex items-center gap-1">
+                                                <span className={crumb.id !== 'home' ? "hidden md:inline" : ""}>{crumb.label}</span>
+                                                {crumb.id !== 'home' && <BreadcrumbEllipsis className="md:hidden h-auto w-auto flex-shrink-0" />}
+                                            </Link>
                                         </BreadcrumbLink>
                                     ) : (
-                                        <span className="text-muted-foreground transition-colors hover:text-foreground">{crumb.label}</span>
+                                        <span className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+                                            <span className={crumb.id !== 'home' ? "hidden md:inline" : ""}>{crumb.label}</span>
+                                            {crumb.id !== 'home' && <BreadcrumbEllipsis className="md:hidden h-auto w-auto flex-shrink-0" />}
+                                        </span>
                                     )}
                                 </BreadcrumbItem>
                                 {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
